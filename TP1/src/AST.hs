@@ -13,6 +13,9 @@ data Exp a where
   Minus ::Exp Int -> Exp Int -> Exp Int
   Times ::Exp Int -> Exp Int -> Exp Int
   Div ::Exp Int -> Exp Int -> Exp Int
+  -- Agregamos la asignacion como expresion y el operador secuencia
+  EAssgn :: Exp Int -> Exp Int -> Exp Int
+  ESeq :: Exp Int -> Exp Int -> Exp Int 
   -- Expreseiones booleanas
   BTrue ::Exp Bool
   BFalse ::Exp Bool

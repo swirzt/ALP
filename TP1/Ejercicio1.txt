@@ -1,0 +1,232 @@
+Version ambigua
+
+Sintaxis abstracta:
+intexp ::= nat | var | -u intexp
+         | intexp (- intexp | + intexp | * intexp | / intexp)
+         | var = intexp 
+         | intexp , intexp        
+boolexp ::= True | False
+          | intexp (== intexp | != intexp
+          | intexp (< intexp | > intexp)
+          | boolexp (^ boolexp | v boolexp) 
+          | ! boolexp 
+comm ::= Skip
+        | var = intexp      
+        | comm;comm
+        | if boolexp then comm else comm
+        | while boolexp do comm            
+
+Sintaxis concreta:
+digit ::= '0' | '1' | ... | '9'
+letter ::= 'a' | ... | 'z'
+nat ::= digit | digit nat
+var ::= letter | letter var
+intexp ::= nat
+         | var
+         | '-' intexp
+         | intexp '+' intexp
+         | intexp '-' intexp
+         | intexp '*' intexp
+         | intexp '/' intexp
+         | '(' intexp ')'
+         | var '=' intexp 
+         | intexp ',' intexp  
+boolexp ::= 'true' | 'false'
+          | intexp '==' intexp
+          | intexp '!=' intexp
+          | intexp '<' intexp
+          | intexp '>' intexp
+          | boolexp '&&' boolexp
+          | boolexp '||' boolexp
+          | '!' boolexp
+          | '(' boolexp ')'
+comm ::= skip
+       | var '=' intexp
+       | comm ';' comm
+       | 'if' boolexp '{' comm '}'
+       | 'if' boolexp '{' comm '}' 'else' '{' comm '}' 
+       | 'while' boolexp '{' comm '}'
+
+
+Resolución de ambiguedad
+
+Sintaxis abstracta:
+intseq ::= intseq , inteq | inteq
+inteq ::= inteq = intexp | intexp
+intexp ::= intexp + intterm
+         | intexp - intterm
+         | intterm
+intterm ::= intterm * intneg
+          | intterm / intneg
+          | intneg
+intneg ::= nat
+         | var
+         | -u intneg
+
+boolor ::= boolor v booland
+         | booland
+booland ::= booland ^ boolnot
+          | boolnot
+boolnot ::= boolval
+          | ! boolnot
+boolval ::= True
+          | False
+          | intseq == intseq
+          | intseq != intseq
+          | intseq < intseq
+          | intseq > intseq
+
+comm ::= comm ; commeq
+       | commeq
+commeq ::= var = intseq 
+         | if boolexp then comm else comm
+         | while boolexp do comm
+         | Skip
+
+
+Sintaxis concreta:
+digit ::= '0' | '1' | ... | '9'
+letter ::= 'a' | ... | 'z'
+nat ::= digit | digit nat
+var ::= letter | letter var
+intseq ::= intseq ',' inteq | inteq
+inteq ::= inteq '=' intexp | intexp
+intexp ::= intexp '+' intterm
+         | intexp '-' intterm
+         | intterm
+intterm ::= intterm '*' intneg
+          | intterm '/' intneg
+          | intneg
+intneg ::= nat
+         | var
+         | '-' intneg
+         | '(' intexp ')'
+boolor ::= boolor '||' booland
+         | booland
+booland ::= booland '&&' booland
+          | booland
+boolval ::= 'true'
+          | 'false'
+          | intseq '==' intseq
+          | intseq '!=' intseq
+          | intseq '<' intseq
+          | intseq '>' intseq
+          | '(' boolor ')'
+          | '!' boolval
+
+comm ::= comm ; commeq
+       | commeq
+commeq ::= skip
+         | var '=' intseq
+         | 'if' boolor '{' comm '}'
+         | 'if' boolor '{' comm '}' 'else' '{' comm '}' 
+         | 'while' boolor '{' comm '}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Version sin recursion a izquierda
+Sintacis abstracta:
+intexp ::= (var | nat | -u intexp) intexp'
+intexp' ::= E | (- intexp | + intexp | * intexp | / intexp) intexp'
+boolexp ::= intexp (== intexp | != intexp) boolexp'
+          | intexp (< intexp | > intexp) boolexp'
+          | ! boolexp boolexp'
+          | (True | False) boolexp'
+boolexp' ::= E |  (^ boolexp | v boolexp) boolexp'
+comm ::= Skip comm'
+       | var = intexp comm'
+       | if boolexp then comm else comm comm'
+       | while boolexp do comm comm'
+comm' ::=  E | ;comm comm'           
+
+Sintaxis concreta:
+digit ::= '0' | '1' | ... | '9'
+letter ::= 'a' | ... | 'z'
+nat ::= digit | digit nat
+var ::= letter | letter var
+intexp ::= (nat | var | '-' intexp | '(' intexp ')') intexp'
+intexp' ::= E | ( '+' intexp | '-' intexp | '*' intexp | '/' intexp) intexp'
+boolexp ::= 'true' | 'false' boolexp'
+          | intexp '==' intexp boolexp'
+          | intexp '!=' intexp boolexp'
+          | intexp '<' intexp boolexp'
+          | intexp '>' intexp boolexp'
+          | '!' boolexp boolexp'
+          | '(' boolexp ')' boolexp'
+boolexp' ::= E | (boolexp '&&' boolexp| boolexp '||' boolexp) booexp'
+          
+comm ::= skip
+       | var '=' intexp
+       | comm ';' comm
+       | 'if' boolexp '{' comm '}'
+       | 'if' boolexp '{' comm '}' 'else' '{' comm '}' 
+       | 'while' boolexp '{' comm '}'

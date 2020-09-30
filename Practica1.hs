@@ -2,6 +2,7 @@ import Parsing
 import Data.Char
 import Control.Monad
 import Control.Applicative hiding (many)
+import AST
 -- 2)
 expr :: Parser Int
 expr = do t <- term
@@ -121,7 +122,7 @@ data Haskelltype = HInt | HChar | Fun Haskelltype Haskelltype  deriving Show
 tipoH :: Parser Haskelltype
 tipoH = (string "Int" >> return HInt)
         <|>
-        (j <- string "Char" >> return HChar)
+        (string "Char" >> return HChar)
 
 baseH :: Parser Haskelltype
 baseH = do i <- tipoH
