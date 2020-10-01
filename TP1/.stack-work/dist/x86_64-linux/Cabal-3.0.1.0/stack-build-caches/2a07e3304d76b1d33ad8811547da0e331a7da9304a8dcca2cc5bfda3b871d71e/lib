@@ -1,11 +1,11 @@
 /mnt/d/Documentos/Clases/ALP/TP1/src/Eval2.hs:
-  hash: 7b4197370b6ed34ebe9b10146ba1f22ae0e9eac61c41b0a5442dcc8d77d6db7a
-  size: 1209
-  modtime: 1600375636
+  hash: 56d1d16931c4e3848e12b437a05204171004447b810f8b97788b463e782f096b
+  size: 6330
+  modtime: 1601586474
 /mnt/d/Documentos/Clases/ALP/TP1/src/Eval1.hs:
-  hash: 8c41824cc439077b5a1b5e472b26a777bbdeacf6c76bf00b2000c09ebc7ac7ca
-  size: 1133
-  modtime: 1600375662
+  hash: 8b3491b3553c72765ef00ebee04bdb2d8f49ec7820029bc183e2e214831c642f
+  size: 3564
+  modtime: 1601584557
 /mnt/d/Documentos/Clases/ALP/TP1/README.md:
   hash: ea60c288f6932e34e269e17df780c0c805d9ade594b18b292dad2ea0777ffb6a
   size: 9922
@@ -15,9 +15,9 @@
   size: 1143
   modtime: 1600375029
 /mnt/d/Documentos/Clases/ALP/TP1/src/AST.hs:
-  hash: 3dcd360b3e8ccecf02a403112dded4caefa0a1a41d28e408680756f8079a608e
-  size: 1313
-  modtime: 1601416056
+  hash: eb9b8251b315b738e42d38627837dec11e6b45b3818800b66bcd5c5a0e88fe60
+  size: 1330
+  modtime: 1601579664
 /mnt/d/Documentos/Clases/ALP/TP1/TP1.cabal:
   hash: db16702fab766bdfd74b8b204bed86e502d3cd7e03e4190a3fe1e5b54eb27391
   size: 1617
@@ -27,13 +27,13 @@
   size: 1724
   modtime: 1600375961
 /mnt/d/Documentos/Clases/ALP/TP1/src/Parser.hs:
-  hash: 8dba415dcef9722c3c76614566670f24aeab157029da1ec350adbf07244a4a29
-  size: 4263
-  modtime: 1601504847
+  hash: 6746b4b34aa4cd82444e3a822a31640ff3e5e568f7b420f855317e2d26870613
+  size: 4420
+  modtime: 1601580128
 /mnt/d/Documentos/Clases/ALP/TP1/src/Eval3.hs:
-  hash: 0e75310dbfa078288bdfbdbd2715c9040003c765575b199ab76051af8edde95f
-  size: 1384
-  modtime: 1600375597
+  hash: 7666f2b81293beddbac4fae362031f08e3d0536fa46df7bf52ba57ddf1dc307c
+  size: 6634
+  modtime: 1601590493
 /mnt/d/Documentos/Clases/ALP/TP1/ChangeLog.md:
   hash: d671c1d73cb79102b61920326ee7d43c81e9d4d770677cfaccbcfd6c725e41a9
   size: 43

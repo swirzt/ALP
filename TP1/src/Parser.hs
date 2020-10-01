@@ -53,7 +53,13 @@ intseq :: Parser (Exp Int)
 intseq = chainl1 inteq (reservedOp lis "," >> return ESeq)
 
 inteq :: Parser (Exp Int)
-inteq = chainl1 intsum (reservedOp lis "=" >> return EAssgn)
+-- inteq = chainr1 intsum (reservedOp lis "=" >> return EAssgn)
+inteq = do s <- identifier lis
+           reservedOp lis "="
+           s' <- inteq
+           return (EAssgn s s')
+        <#> intsum    
+              
 
 intsum :: Parser (Exp Int)
 intsum = chainl1 intterm sepsum
@@ -79,7 +85,7 @@ intneg = parens lis intexp
          do reservedOp lis "-"
             n <- intneg
             return (UMinus n) 
-            <#> do m <- integer lis
+            <#> do m <- natural lis
                    return (Const (fromIntegral m))      
             <#> do i <- identifier lis
                    return (Var i) 

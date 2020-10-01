@@ -12,9 +12,10 @@ boolexp ::= True | False
           | ! boolexp 
 comm ::= Skip
         | var = intexp      
-        | comm;comm
+        | comm; comm
         | if boolexp then comm else comm
-        | while boolexp do comm            
+        | while boolexp do comm    
+        | for (intexp; boolexp; intexp)          
 
 Sintaxis concreta:
 digit ::= '0' | '1' | ... | '9'
@@ -52,8 +53,9 @@ Resolución de ambiguedad
 
 Sintaxis abstracta:
 intseq ::= intseq , inteq | inteq
-inteq ::= inteq = intexp | intexp
-intexp ::= intexp + intterm
+---------------inteq ::= inteq = intexp | intexp
+intexp ::= var = intexp 
+         | intexp + intterm
          | intexp - intterm
          | intterm
 intterm ::= intterm * intneg
@@ -82,7 +84,7 @@ commeq ::= var = intseq
          | if boolexp then comm else comm
          | while boolexp do comm
          | Skip
-
+         | for (intexp; boolexp; intexp)
 
 Sintaxis concreta:
 digit ::= '0' | '1' | ... | '9'
@@ -90,8 +92,9 @@ letter ::= 'a' | ... | 'z'
 nat ::= digit | digit nat
 var ::= letter | letter var
 intseq ::= intseq ',' inteq | inteq
-inteq ::= inteq '=' intexp | intexp
-intexp ::= intexp '+' intterm
+-----quitado------inteq ::= var '=' inteq | intexp
+intexp ::= var '=' intexp 
+         | intexp '+' intterm
          | intexp '-' intterm
          | intterm
 intterm ::= intterm '*' intneg
@@ -122,111 +125,4 @@ commeq ::= skip
          | 'if' boolor '{' comm '}' 'else' '{' comm '}' 
          | 'while' boolor '{' comm '}'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Version sin recursion a izquierda
-Sintacis abstracta:
-intexp ::= (var | nat | -u intexp) intexp'
-intexp' ::= E | (- intexp | + intexp | * intexp | / intexp) intexp'
-boolexp ::= intexp (== intexp | != intexp) boolexp'
-          | intexp (< intexp | > intexp) boolexp'
-          | ! boolexp boolexp'
-          | (True | False) boolexp'
-boolexp' ::= E |  (^ boolexp | v boolexp) boolexp'
-comm ::= Skip comm'
-       | var = intexp comm'
-       | if boolexp then comm else comm comm'
-       | while boolexp do comm comm'
-comm' ::=  E | ;comm comm'           
-
-Sintaxis concreta:
-digit ::= '0' | '1' | ... | '9'
-letter ::= 'a' | ... | 'z'
-nat ::= digit | digit nat
-var ::= letter | letter var
-intexp ::= (nat | var | '-' intexp | '(' intexp ')') intexp'
-intexp' ::= E | ( '+' intexp | '-' intexp | '*' intexp | '/' intexp) intexp'
-boolexp ::= 'true' | 'false' boolexp'
-          | intexp '==' intexp boolexp'
-          | intexp '!=' intexp boolexp'
-          | intexp '<' intexp boolexp'
-          | intexp '>' intexp boolexp'
-          | '!' boolexp boolexp'
-          | '(' boolexp ')' boolexp'
-boolexp' ::= E | (boolexp '&&' boolexp| boolexp '||' boolexp) booexp'
-          
-comm ::= skip
-       | var '=' intexp
-       | comm ';' comm
-       | 'if' boolexp '{' comm '}'
-       | 'if' boolexp '{' comm '}' 'else' '{' comm '}' 
-       | 'while' boolexp '{' comm '}'
+TERMINAMOS LA PARTE DE HASKELL ATRRRRRR
