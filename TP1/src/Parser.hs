@@ -47,22 +47,14 @@ x <#> y = (try x) <|> y
 --- Parser de expressiones enteras
 -----------------------------------
 intexp :: Parser (Exp Int)
-intexp = intseq
+intexp = chainl1 intop (reservedOp lis "," >> return ESeq)
 
-intseq :: Parser (Exp Int)
-intseq = chainl1 inteq (reservedOp lis "," >> return ESeq)
-
-inteq :: Parser (Exp Int)
--- inteq = chainr1 intsum (reservedOp lis "=" >> return EAssgn)
-inteq = do s <- identifier lis
+intop :: Parser (Exp Int)
+intop = do s <- identifier lis
            reservedOp lis "="
-           s' <- inteq
+           s' <- intop
            return (EAssgn s s')
-        <#> intsum    
-              
-
-intsum :: Parser (Exp Int)
-intsum = chainl1 intterm sepsum
+        <#> chainl1 intterm sepsum
 
 sepsum :: Parser (Exp Int -> Exp Int -> Exp Int)
 sepsum = do reservedOp lis "+"
@@ -71,7 +63,7 @@ sepsum = do reservedOp lis "+"
                 return Minus
 
 intterm :: Parser (Exp Int)
-intterm = chainl1 intneg septerm
+intterm = chainl1 intval septerm
 
 septerm :: Parser (Exp Int -> Exp Int -> Exp Int)
 septerm = do reservedOp lis "*"
@@ -79,11 +71,11 @@ septerm = do reservedOp lis "*"
           <#> do reservedOp lis "/"
                  return Div
 
-intneg :: Parser (Exp Int)
-intneg = parens lis intexp
+intval :: Parser (Exp Int)
+intval = parens lis intexp
          <#>
          do reservedOp lis "-"
-            n <- intneg
+            n <- intval
             return (UMinus n) 
             <#> do m <- natural lis
                    return (Const (fromIntegral m))      
@@ -94,16 +86,13 @@ intneg = parens lis intexp
 ------------------------------------
 
 boolexp :: Parser (Exp Bool)
-boolexp = boolor
-
-boolor :: Parser (Exp Bool)
-boolor = chainl1 booland (reservedOp lis "||" >> return (Or))
+boolexp = chainl1 booland (reservedOp lis "||" >> return (Or))
 
 booland :: Parser (Exp Bool)
 booland = chainl1 boolval (reservedOp lis "&&" >> return (And))
 
 boolval :: Parser (Exp Bool)
-boolval = parens lis boolor
+boolval = parens lis boolexp
           <#>
           do reservedOp lis "!"
              r <- boolval
