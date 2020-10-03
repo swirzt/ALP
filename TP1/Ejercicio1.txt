@@ -1,7 +1,7 @@
 Version ambigua
 
 Sintaxis abstracta:
-intexp ::= nat | var | -u intexp
+intexp ::= nat | var | -u intexp |
          | intexp (- intexp | + intexp | * intexp | / intexp)
          | var = intexp 
          | intexp , intexp        
@@ -15,11 +15,12 @@ comm ::= Skip
         | comm; comm
         | if boolexp then comm else comm
         | while boolexp do comm    
-        | for (intexp; boolexp; intexp)          
+        | for (intexp; boolexp; intexp) comm
 
 Sintaxis concreta:
 digit ::= '0' | '1' | ... | '9'
 letter ::= 'a' | ... | 'z'
+for (a; b; c) d -> while b (d;if c==0 then skip else skip)
 nat ::= digit | digit nat
 var ::= letter | letter var
 intexp ::= nat
@@ -53,7 +54,6 @@ Resolución de ambiguedad
 
 Sintaxis abstracta:
 intseq ::= intseq , inteq | inteq
----------------inteq ::= inteq = intexp | intexp
 intexp ::= var = intexp 
          | intexp + intterm
          | intexp - intterm
@@ -92,7 +92,6 @@ letter ::= 'a' | ... | 'z'
 nat ::= digit | digit nat
 var ::= letter | letter var
 intseq ::= intseq ',' inteq | inteq
------quitado------inteq ::= var '=' inteq | intexp
 intexp ::= var '=' intexp 
          | intexp '+' intterm
          | intexp '-' intterm
@@ -125,4 +124,3 @@ commeq ::= skip
          | 'if' boolor '{' comm '}' 'else' '{' comm '}' 
          | 'while' boolor '{' comm '}'
 
-TERMINAMOS LA PARTE DE HASKELL ATRRRRRR

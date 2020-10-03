@@ -1,0 +1,32 @@
+Queremos ver que la relación de evaluación en un paso → es determinista, es decir, si t → t' y t → t'', entonces t' = t''.
+Para ello supondremos que la relación ↓ es determinista y haremos inducción sobre la derivación t → t'
+
+*Supongo que obtuve t' = <skip, [s' | v : n]> usando como última regla ASS
+Luego t es de la forma <v=e,s> y la hipótesis es que <e,s> ↓ <n,s'>. Al ser la relación ↓ determinista, no puede derivar a otro elemento.
+Luego, la única regla aplicable a t es ASS. Así resulta que t' = t''
+
+*Supongo que obtuve t' = <c1,s> usando como última regla SEQ1
+Luego t es de la forma <skip;c1, s>
+La única regla aplicable a t es SEQ1, por lo que debe suceder que t' = t''
+
+*Supongo que obtuve t' = <c0';c1,s'> usando como última regla SEQ2
+Luego t es de la forma <c0;c1,s> y la hipótesis es que <c0,s> → <c0',s'>. 
+Por hipótesis inductiva, tenemos que la derivación <c0,s> → <c0',s'> es determinista, es decir, solo puede derivar a ese elemento. 
+Como la única regla aplicable en t es SEQ2 (no podemos aplicar SEQ1 pues sabemos que c0 != skip) tenemos que t' = t'' 
+
+*Supongo que obtuve t' = <c0,s'> usando como última regla a IF1
+Luego t es de la forma <if b then c0 else c1,s> y la hipótesis es que <b,k> ↓ <true,s'>. Entonces si hubiera usado la regla IF2, luego <b,k> ↓ <false,s> lo cual es contraddicción porque true != false
+Entonces la única regla aplicable es IF1
+
+*Supongo que obtuve t' = <c0,s'> usando como última regla a IF2
+Luego t es de la forma <if b then c1 else c0,s> y la hipótesis es que <b,k> ↓ <false,s'>. Entonces no prodría usar la regla IF2 ya que la relacion ↓ es determinista entonces <b,k> no deriba a <true,s>
+Entonces la única regla aplicable es IF1
+
+*Supongo que obtuve t' = <c;while b do c,s'> usando como última regla a While1
+Luego t es de la forma <while b do c,s> y la hipótesis es que  <b,k> ↓ <true,s'>, luego como ↓ es determinista, <b,s> no ↓ <false,s'>
+Entonces la única regla aplicable a t = <while b do c,s> es WHILE1
+
+*Supongo que obtuve t' = <c;t,s'> usando como última regla a While2
+Luego t es de la forma <while b do c,s> y la hipótesis es que  <b,k> ↓ <false,s'>. Al ser la relación ↓ determinista, <b,k> no puede derivar <True,s'>
+Entonces la única regla aplicable a t es While2 y resulta t' = t''
+
