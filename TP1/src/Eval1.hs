@@ -41,10 +41,14 @@ stepCommStar c    s = Data.Strict.Tuple.uncurry stepCommStar $ stepComm c s
 stepComm :: Comm -> State -> Pair Comm State
 stepComm (Skip) e = (Skip :!: e)
 stepComm (Let x y) e = let (n :!: e') = evalExp y e in (Skip :!: update x n e')
-stepComm (Seq s1 s2) e = let (Skip :!: e') = stepComm s1 e in stepComm s2 e'
-stepComm (IfThenElse x y z) e = let (v :!: e') = evalExp x e in if v then stepComm y e' else stepComm z e'
-stepComm w@(While x y) e = let (v :!: e') = evalExp x e in 
-                           if v then stepComm (Seq y w) e' else (Skip :!: e')
+stepComm (Seq Skip s) e = (s :!: e)
+stepComm (Seq s1 s2) e = let (s' :!: e') = stepComm s1 e in (Seq s' s2 :!: e')
+stepComm (IfThenElse x y z) e = case evalExp x e of
+                                        (True :!: e') -> (y :!: e')
+                                        (False :!: e') -> (z :!: e')
+stepComm w@(While x y) e = case evalExp x e of
+                                    (True :!: e') -> ((Seq y w) :!: e')
+                                    (False :!: e') -> (Skip :!: e')
                         
 
 -- Evalua una expresion
@@ -66,8 +70,7 @@ evalExp (Times x y) e = let (v1 :!: e') = evalExp x e
 evalExp (Div x y) e = let (v1 :!: e') = evalExp x e
                           (v2 :!: e'') = evalExp y e'
                       in (div v1 v2 :!: e'')
-evalExp (EAssgn xs y) e = let _ = lookfor xs e
-                              (v :!: e') = evalExp y e
+evalExp (EAssgn xs y) e = let (v :!: e') = evalExp y e
                           in (v :!: update xs v e')
 evalExp (ESeq s1 s2) e = let (_ :!: e') = evalExp s1 e in evalExp s2 e'
 -- Bool

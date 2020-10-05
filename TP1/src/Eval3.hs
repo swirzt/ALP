@@ -53,14 +53,17 @@ stepComm (Skip) e = Right (Skip :!: e)
 stepComm (Let x y) e = case evalExp y e of
                             Right (n :!: e') -> Right (Skip :!: update x n e')
                             Left x -> Left x
+stepComm (Seq Skip s) e = Right (s :!: e)
 stepComm (Seq s1 s2) e = case stepComm s1 e of
-                            Right (Skip :!: e') -> stepComm s2 e' 
+                            Right (s' :!: e') -> Right (Seq s' s2 :!: e') 
                             Left x -> Left x
 stepComm (IfThenElse x y z) e = case evalExp x e of
-                                     Right (v :!: e') -> if v then stepComm y e' else stepComm z e'
+                                     Right (True :!: e') -> Right (y :!: e')
+                                     Right (False :!: e') -> Right (z :!: e')
                                      Left x -> Left x
 stepComm w@(While x y) e = case evalExp x e of 
-                                Right (v :!: e') -> if v then stepComm (Seq y w) e' else Right (Skip :!: e')
+                                Right (True :!: e') -> Right ((Seq y w) :!: e')
+                                Right (False :!: e') -> Right (Skip :!: e')
                                 Left x -> Left x
 
 
@@ -91,14 +94,12 @@ evalExp (Times x y) e = case evalExp x e of
                             Left x -> Left x 
 evalExp (Div x y) e = case evalExp x e of
                             Right (v1 :!: e') -> case evalExp y e' of
-                                                      Right (v2 :!: e'') -> if v2 == 0 then Left DivByZero
-                                                                                       else Right (div v1 v2 :!: addWork 2 e'') 
+                                                      Right (0 :!: e'') -> Left DivByZero
+                                                      Right (v2 :!: e'') -> Right (div v1 v2 :!: addWork 2 e'') 
                                                       Left x -> Left x
                             Left x -> Left x  
-evalExp (EAssgn xs y) e = case lookfor xs e of
-                              Right _ -> case evalExp y e of 
-                                             Right (v :!: e') -> Right (v :!: update xs v e')
-                                             Left x -> Left x
+evalExp (EAssgn xs y) e = case evalExp y e of 
+                              Right (v :!: e') -> Right (v :!: update xs v e')
                               Left x -> Left x
 evalExp (ESeq s1 s2) e = case evalExp s1 e of 
                               Right (_ :!: e') -> evalExp s2 e'
