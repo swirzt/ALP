@@ -32,7 +32,7 @@ pExp (EAssgn a b) = pVar a <+> text "=" <+> pExp b
 pExp (ESeq a b) = pExp a <+> text "," <+> pExp b
 pExp _ =
   error
-    "El Pretty Printer no está implementado para las extensiones del Ejercicio 2."
+    "El Pretty Printer SI está implementado para las extensiones del Ejercicio 2. (Creemos)"
 
 pComm :: Comm -> Doc
 pComm Skip        = text "skip"

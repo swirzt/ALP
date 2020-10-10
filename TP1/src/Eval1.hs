@@ -12,17 +12,14 @@ import           Data.Strict.Tuple
 type State = M.Map Variable Int
 
 -- Estado nulo
--- Completar la definición
 initState :: State
 initState = M.empty
 
 -- Busca el valor de una variable en un estado
--- Completar la definición
 lookfor :: Variable -> State -> Int
 lookfor v s = s M.! v
 
 -- Cambia el valor de una variable en un estado
--- Completar la definición
 update :: Variable -> Int -> State -> State
 update = M.insert
 
@@ -37,7 +34,6 @@ stepCommStar Skip s = s
 stepCommStar c    s = Data.Strict.Tuple.uncurry stepCommStar $ stepComm c s
 
 -- Evalua un paso de un comando en un estado dado
--- Completar la definición
 stepComm :: Comm -> State -> Pair Comm State
 stepComm (Skip) e = (Skip :!: e)
 stepComm (Let x y) e = let (n :!: e') = evalExp y e in (Skip :!: update x n e')
@@ -52,7 +48,6 @@ stepComm w@(While x y) e = case evalExp x e of
                         
 
 -- Evalua una expresion
--- Completar la definición
 evalExp :: Exp a -> State -> Pair a State
 --Int
 evalExp (Const n) e = (n :!: e)

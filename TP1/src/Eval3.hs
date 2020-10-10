@@ -12,25 +12,21 @@ import           Data.Strict.Tuple
 type State = (M.Map Variable Int, Integer)
 
 -- Estado nulo
--- Completar la definición
 initState :: State
 initState = (M.empty,0)
 
 -- Busca el valor de una variable en un estado
--- Completar la definición
 lookfor :: Variable -> State -> Either Error Int
 lookfor v (m,_) = case M.lookup v m of
                   Just n -> Right n
                   Nothing -> Left UndefVar
 
 -- Cambia el valor de una variable en un estado
--- Completar la definición
 update :: Variable -> Int -> State -> State
 update x v (a,b) = (M.insert x v a, b)
 
--- AL: Darles esta signatura como hint?
+-- AL: Darles esta signatura como hint? Gracias por la ayuda
 -- Suma un costo dado al estado
--- Completar la definición
 addWork :: Integer -> State -> State
 addWork n = \(x,y)->(x,y+n)
 
@@ -47,7 +43,6 @@ stepCommStar c    s = do
   stepCommStar c' s'
 
 -- Evalua un paso de un comando en un estado dado
--- Completar la definición
 stepComm :: Comm -> State -> Either Error (Pair Comm State)
 stepComm (Skip) e = Right (Skip :!: e)
 stepComm (Let x y) e = case evalExp y e of
@@ -68,7 +63,6 @@ stepComm w@(While x y) e = case evalExp x e of
 
 
 -- Evalua una expresion
--- Completar la definición
 evalExp :: Exp a -> State -> Either Error (Pair a State)
 evalExp (Const n) e = Right (n :!: e)
 evalExp (Var n) e = case lookfor n e of

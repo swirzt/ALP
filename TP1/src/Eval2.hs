@@ -12,19 +12,16 @@ import           Data.Strict.Tuple
 type State = M.Map Variable Int
 
 -- Estado nulo
--- Completar la definición
 initState :: State
 initState = M.empty
 
 -- Busca el valor de una variable en un estado
--- Completar la definición
 lookfor :: Variable -> State -> Either Error Int
 lookfor v s = case M.lookup v s of
                   Just n -> Right n
                   Nothing -> Left UndefVar
 
 -- Cambia el valor de una variable en un estado
--- Completar la definición
 update :: Variable -> Int -> State -> State
 update = M.insert
 
@@ -41,7 +38,6 @@ stepCommStar c    s = do
   stepCommStar c' s'
 
 -- Evalua un paso de un comando en un estado dado
--- Completar la definición
 stepComm :: Comm -> State -> Either Error (Pair Comm State)
 stepComm (Skip) e = Right (Skip :!: e)
 stepComm (Let x y) e = case evalExp y e of
@@ -61,8 +57,9 @@ stepComm w@(While x y) e = case evalExp x e of
                                 Left x -> Left x
                         
 -- Evalua una expresion
--- Completar la definición
+
 evalExp :: Exp a -> State -> Either Error (Pair a State)
+-- Int
 evalExp (Const n) e = Right (n :!: e)
 evalExp (Var n) e = case lookfor n e of
                          Right x -> Right (x :!: e)
@@ -88,7 +85,7 @@ evalExp (Times x y) e = case evalExp x e of
 evalExp (Div x y) e = case evalExp x e of
                             Right (v1 :!: e') -> case evalExp y e' of
                                                       Right (0 :!: e'') -> Left DivByZero
-                                                      Right (v2 :!: e'') -> Right (div v1 v2 :!: e'') 
+                                                      Right (v2 :!: e'') -> Right (div v1 v2 :!: e'')
                                                       Left x -> Left x
                             Left x -> Left x  
 evalExp (EAssgn xs y) e = case evalExp y e of 

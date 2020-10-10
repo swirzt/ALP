@@ -2,7 +2,6 @@ import Parsing
 import Data.Char
 import Control.Monad
 import Control.Applicative hiding (many)
-import AST
 -- 2)
 expr :: Parser Int
 expr = do t <- term
