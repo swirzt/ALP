@@ -61,37 +61,39 @@ parseLambda :: Parser Lambda
 parseLambda = do symbol "("
                  l <- parseLambda
                  do symbol ")"
-                    parseLambda' l
+                    return l
                     <|>
                     do l2 <- parseLambda
                        symbol ")"
-                       parseLambda' (App l l2)
+                       return (App l l2)
               <|> 
               do symbol "$"
                  v <- token letter
                  symbol "."
-                 t <- parseLambda
-                 parseLambda' (Abs v t)
+                 t <- parseLambda' Nothing
+                 return (Abs v t)
               <|>
               do v <- token letter
-                 parseLambda' (Var v)
+                 return (Var v)
 
 
-parseLambda' :: Lambda -> Parser Lambda
-parseLambda' t = do t1 <- parseLambda
-                    parseLambda' (App t t1)
-                 <|>
-                 return t
+parseLambda' :: Maybe Lambda -> Parser Lambda
+parseLambda' Nothing = do t1 <- parseLambda
+                          parseLambda' (Just t1)
+parseLambda' (Just t) = do t1 <- parseLambda
+                           parseLambda' (Just (App t t1))
+                           <|>
+                           return t
 
 parseReem :: Parser Lambda
-parseReem = do l <- parseLambda
+parseReem = do l <- parseLambda' Nothing
                symbol "["
-               i <- parseLambda
+               i <- parseLambda' Nothing
                symbol "/"
                v <- token letter
                symbol "]"
                return (Reem l i v)
-               <|> parseLambda
+               <|> parseLambda' Nothing
 
 imprime :: Lambda -> String
 imprime (Var c) = c:[]
@@ -111,5 +113,3 @@ muestraLibres xs = fv $ fst $ head $ parse parseReem xs
 
 sustitucion :: String -> String
 sustitucion xs = imprime $ eval Sust $ fst $ head $ parse parseReem xs
-
-($x.$y.x y) ($z.y z) z
