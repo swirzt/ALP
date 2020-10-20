@@ -41,14 +41,12 @@ eval e t = eval' t (e, [])
 eval' :: Term -> (NameEnv Value, [Value]) -> Value
 eval' (Bound ii) (_, lEnv) = lEnv !! ii
 eval' (Free n) (gEnv,_) = case getGlobal n gEnv of
-                                Nothing -> error "no se"
+                                Nothing -> error "no se"          
                                 Just k -> k
-eval' (t :@: t') e = case eval' t e of
-            VLam f -> vapp  (VLam f) (eval' t' e) 
-            VNeutral n -> VNeutral (NApp n (eval' t' e))
+eval' (t :@: t') e = vapp (eval' t e) (eval' t' e)
 eval' (Lam t) (g,l) = VLam (\x-> (eval' t (g,x:l)))
 
-getGlobal :: Name -> [(Name, v)] -> Maybe v
+getGlobal :: Name -> NameEnv v -> Maybe v
 getGlobal s [] = Nothing
 getGlobal s ((n,k):xs) = if s == n then Just k else getGlobal s xs 
 
@@ -61,8 +59,10 @@ quote = quote' 0
 
 quote' :: Int -> Value -> Term
 quote' n (VLam f) = case f (VNeutral (NFree (Quote n))) of
-                        VNeutral (NFree (Quote k)) -> Bound (n - k - 1)
-                        x -> quote' (n+1) x
-quote' n (VNeutral x) = case x of   
-                            NFree name -> Free name
-                            NApp neutral v -> quote' n (VNeutral neutral) :@: quote' n v
+                            VNeutral (NFree (Quote k)) -> Bound (n-k-1)
+                            x -> quote' (n+1) x
+quote' n (VNeutral x) = nquote x
+
+nquote :: Neutral -> Term
+nquote (NFree name) = Free name
+nquote (NApp neutral value) = nquote neutral :@: quote value
