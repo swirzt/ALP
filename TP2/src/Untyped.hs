@@ -33,9 +33,7 @@ busca s ((ss,x):xs) = if s == ss then Just x else busca s xs
 
 vapp :: Value -> Value -> Value
 vapp (VLam x) z = x z
-vapp (VNeutral x) z = case x of
-                        NFree n -> VNeutral (NApp x z)
-                        NApp n v -> VNeutral (NApp n (vapp v z))
+vapp (VNeutral x) z = VNeutral (NApp x z)
 
 eval :: NameEnv Value -> Term -> Value
 eval e t = eval' t (e, [])
@@ -45,8 +43,10 @@ eval' (Bound ii) (_, lEnv) = lEnv !! ii
 eval' (Free n) (gEnv,_) = case getGlobal n gEnv of
                                 Nothing -> error "no se"
                                 Just k -> k
-eval' (t :@: t') e = vapp (eval' t e) (eval' t' e)
-eval' (Lam t) (((_,v):e),s) = eval' t (e,v:s)
+eval' (t :@: t') e = case eval' t e of
+            VLam f -> vapp  (VLam f) (eval' t' e) 
+            VNeutral n -> VNeutral (NApp n (eval' t' e))
+eval' (Lam t) (g,l) = VLam (\x-> (eval' t (g,x:l)))
 
 getGlobal :: Name -> [(Name, v)] -> Maybe v
 getGlobal s [] = Nothing
@@ -66,9 +66,3 @@ quote' n (VLam f) = case f (VNeutral (NFree (Quote n))) of
 quote' n (VNeutral x) = case x of   
                             NFree name -> Free name
                             NApp neutral v -> quote' n (VNeutral neutral) :@: quote' n v
-
-
-
-
-
-
