@@ -58,11 +58,10 @@ quote :: Value -> Term
 quote = quote' 0
 
 quote' :: Int -> Value -> Term
-quote' n (VLam f) = case f (VNeutral (NFree (Quote n))) of
-                            VNeutral (NFree (Quote k)) -> Bound (n-k-1)
-                            x -> quote' (n+1) x
-quote' n (VNeutral x) = nquote x
+quote' n (VLam f) = Lam (quote' (n+1) (f (VNeutral (NFree (Quote n)))))
+quote' n (VNeutral x) = nquote n x
 
-nquote :: Neutral -> Term
-nquote (NFree name) = Free name
-nquote (NApp neutral value) = nquote neutral :@: quote value
+nquote :: Int -> Neutral -> Term
+nquote n (NFree (Quote p)) = Bound (n-p-1)
+nquote n (NFree name) = Free name
+nquote n (NApp neutral value) = nquote n neutral :@: quote' n value
