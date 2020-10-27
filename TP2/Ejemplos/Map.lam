@@ -1,0 +1,7 @@
+def appN = Y (\g i f x. (is0 i) x (f (g (pred i) f x)))
+
+def mapN' = Y (\g i f xs. (isnil xs) nil (cons (appN i f (head xs)) (g (suc i) f (tail xs))))
+
+def mapN = mapN' zero
+
+def not = \x. x false true

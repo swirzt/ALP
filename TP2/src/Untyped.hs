@@ -41,7 +41,7 @@ eval e t = eval' t (e, [])
 eval' :: Term -> (NameEnv Value, [Value]) -> Value
 eval' (Bound ii) (_, lEnv) = lEnv !! ii
 eval' (Free n) (gEnv,_) = case getGlobal n gEnv of
-                                Nothing -> error "no se"          
+                                Nothing -> VNeutral (NFree n)          
                                 Just k -> k
 eval' (t :@: t') e = vapp (eval' t e) (eval' t' e)
 eval' (Lam t) (g,l) = VLam (\x-> (eval' t (g,x:l)))
@@ -53,7 +53,6 @@ getGlobal s ((n,k):xs) = if s == n then Just k else getGlobal s xs
 --------------------------------
 -- Sección 4 - Mostrando Valores
 --------------------------------
-
 quote :: Value -> Term
 quote = quote' 0
 
@@ -62,6 +61,21 @@ quote' n (VLam f) = Lam (quote' (n+1) (f (VNeutral (NFree (Quote n)))))
 quote' n (VNeutral x) = nquote n x
 
 nquote :: Int -> Neutral -> Term
-nquote n (NFree (Quote p)) = Bound (n-p-1)
+nquote n (NFree (Quote k)) = Bound (n-k-1)
 nquote n (NFree name) = Free name
 nquote n (NApp neutral value) = nquote n neutral :@: quote' n value
+
+--------------------------------
+-- Sección 5 - Programando en λ-cálculo
+--------------------------------
+
+mapN :: (a->a) -> [a] -> [a]
+mapN = mapN' 0
+
+mapN' :: Int -> (a->a) -> [a] -> [a]
+mapN' _ _ [] = []
+mapN' n f (x:xs) = appN n f x : mapN' (n+1) f xs
+
+appN :: Int -> (a -> a) -> a -> a
+appN 0 _ x = x
+appN i g x = g (appN (i-1) g x)
