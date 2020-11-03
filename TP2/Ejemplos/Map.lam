@@ -4,4 +4,3 @@ def mapN' = Y (\g i f xs. (isnil xs) nil (cons (appN i f (head xs)) (g (suc i) f
 
 def mapN = mapN' zero
 
-def not = \x. x false true
