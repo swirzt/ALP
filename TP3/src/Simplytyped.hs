@@ -24,6 +24,7 @@ conversion' :: [String] -> LamTerm -> Term
 conversion' b (LVar n    ) = maybe (Free (Global n)) Bound (n `elemIndex` b)
 conversion' b (LApp t u  ) = conversion' b t :@: conversion' b u
 conversion' b (LAbs n t u) = Lam t (conversion' (n : b) u)
+conversion' b (LLet s t u) = Let (conversion' b t) (conversion' (s : b) u)
 
 
 -----------------------
@@ -36,6 +37,7 @@ sub _ _ (Bound j) | otherwise = Bound j
 sub _ _ (Free n   )           = Free n
 sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
+sub i t (Let t u  )           = Let t (sub (i + 1) t u) --Hace falta sumar 1?
 
 -- evaluador de términos
 eval :: NameEnv Value Type -> Term -> Value
@@ -47,6 +49,7 @@ eval e (Lam t u1 :@: u2) = let v2 = eval e u2 in eval e (sub 0 (quote v2) u1)
 eval e (u        :@: v      ) = case eval e u of
   VLam t u' -> eval e (Lam t u' :@: v)
   _         -> error "Error de tipo en run-time, verificar type checker"
+eval e (Let t u             ) = let t' = eval e t in eval e (sub 0 t' u)
 
 
 -----------------------
@@ -102,4 +105,10 @@ infer' c e (t :@: u) = infer' c e t >>= \tt -> infer' c e u >>= \tu ->
     _          -> notfunError tt
 infer' c e (Lam t u) = infer' (t : c) e u >>= \tu -> ret $ FunT t tu
 
+{-
+La funcion infer debe devolver un valor de tipo Either String Type, pues queremos tener una forma de poder
+propagar los errores de inferencia de tipo a traves de la ejecucion.
+Lo que hace la funcion (>>=) es tomar un elemento de tipo Either String Type y una función de tipo Type -> Either String Type, y si recibe Left s (un error) devuelve Left s (propaga el error)
+pero si recibe un Right t (un tipo válido), aplica la funcion f al argumento t.
+-}
 ----------------------------------

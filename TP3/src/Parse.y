@@ -22,6 +22,8 @@ import Data.Char
     '('     { TOpen }
     ')'     { TClose }
     '->'    { TArrow }
+    'let'   { TLet }
+    'in'    { TIn }    
     VAR     { TVar $$ }
     TYPEE   { TTypeE }
     DEF     { TDef }
@@ -30,7 +32,7 @@ import Data.Char
 %right VAR
 %left '=' 
 %right '->'
-%right '\\' '.' 
+%right '\\' '.' 'let' 'in'
 
 %%
 
@@ -40,6 +42,7 @@ Defexp  : DEF VAR '=' Exp              { Def $2 $4 }
 
 Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
+        | 'let' VAR '=' Exp 'in' Exp   { LLet $2 $4 $6 }
         | NAbs                         { $1 }
         
 NAbs    :: { LamTerm }
@@ -96,6 +99,8 @@ data Token = TVar String
                | TColon
                | TArrow
                | TEquals
+               | TLet
+               | TIn
                | TEOF
                deriving Show
 
@@ -117,6 +122,8 @@ lexer cont s = case s of
                     (')':cs) -> cont TClose cs
                     (':':cs) -> cont TColon cs
                     ('=':cs) -> cont TEquals cs
+                    ('l':('e':('t':cs))) -> cont TLet cs
+                    ('i':('n':cs)) -> cont TIn cs
                     unknown -> \line -> Failed $ 
                      "Línea "++(show line)++": No se puede reconocer "++(show $ take 10 unknown)++ "..."
                     where lexVar cs = case span isAlpha cs of

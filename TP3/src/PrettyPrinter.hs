@@ -30,6 +30,9 @@ pp ii vs (i :@: c         ) = sep
   [ parensIf (isLam i) (pp ii vs i)
   , nest 1 (parensIf (isLam c || isApp c) (pp ii vs c))
   ]
+-- Depués vemos si podemos meter un let en un \x
+
+
 pp ii vs (Lam t c) =
   text "\\"
     <> text (vs !! ii)
@@ -37,7 +40,14 @@ pp ii vs (Lam t c) =
     <> printType t
     <> text ". "
     <> pp (ii + 1) vs c
-
+-- Preguntar que pasa si se pisan los (ii+1). Funca porque estan boundeadas por localidad? Sí Sí Sí
+pp ii vs (Let t u) =
+  text "let"
+    <> text (vs !! ii)
+    <> text "="
+    <> pp (ii+1) vs t
+    <> text "in"
+    <> pp (ii+1) vs u
 
 isLam :: Term -> Bool
 isLam (Lam _ _) = True
@@ -46,6 +56,10 @@ isLam _         = False
 isApp :: Term -> Bool
 isApp (_ :@: _) = True
 isApp _         = False
+
+isLet :: Term -> Bool
+isLet (Let _ _) = True
+isLet _         = False
 
 -- pretty-printer de tipos
 printType :: Type -> Doc
@@ -63,7 +77,7 @@ fv (Bound _         ) = []
 fv (Free  (Global n)) = [n]
 fv (t   :@: u       ) = fv t ++ fv u
 fv (Lam _   u       ) = fv u
-
+fv (Let t   u       ) = fv t ++ fv u
 ---
 printTerm :: Term -> Doc
 printTerm t = pp 0 (filter (\v -> not $ elem v (fv t)) vars) t
