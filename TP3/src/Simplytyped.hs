@@ -25,6 +25,11 @@ conversion' b (LVar n    ) = maybe (Free (Global n)) Bound (n `elemIndex` b)
 conversion' b (LApp t u  ) = conversion' b t :@: conversion' b u
 conversion' b (LAbs n t u) = Lam t (conversion' (n : b) u)
 conversion' b (LLet s t u) = Let (conversion' b t) (conversion' (s : b) u)
+conversion' b (LAs t tt  ) = As (conversion' b t) tt
+conversion' b (LUnit     ) = Unit
+conversion' b (LFst t    ) = Fst (conversion' b t)
+conversion' b (LSnd t    ) = Snd (conversion' b t)
+conversion' b (LPair t u ) = Pair (conversion' b t) (conversion' b u)
 
 
 -----------------------
@@ -37,9 +42,15 @@ sub _ _ (Bound j) | otherwise = Bound j
 sub _ _ (Free n   )           = Free n
 sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
-sub i t (Let t u  )           = Let t (sub (i + 1) t u) --Hace falta sumar 1?
+sub i t (Let p u  )           = Let p (sub (i + 1) t u)
+sub i t (As p u   )           = As (sub i t p) u 
+sub _ _ (Unit     )           = Unit
+sub i t (Fst p    )           = Fst (sub i t p)
+sub i t (Snd p    )           = Snd (sub i t p)
+sub i t (Pair p u )           = Pair (sub i t p) (sub i t u)
 
 -- evaluador de términos
+-- type NameEnv v t = [(Name, (v, t))]
 eval :: NameEnv Value Type -> Term -> Value
 eval _ (Bound _             ) = error "variable ligada inesperada en eval"
 eval e (Free  n             ) = fst $ fromJust $ lookup n e
@@ -49,16 +60,30 @@ eval e (Lam t u1 :@: u2) = let v2 = eval e u2 in eval e (sub 0 (quote v2) u1)
 eval e (u        :@: v      ) = case eval e u of
   VLam t u' -> eval e (Lam t u' :@: v)
   _         -> error "Error de tipo en run-time, verificar type checker"
-eval e (Let t u             ) = let t' = eval e t in eval e (sub 0 t' u)
-
-
+eval e (Let t u             ) = let t' = eval e t
+    in case t' of
+      VLam k l -> eval e (sub 0 (Lam k l) u)
+      _        -> error "Error de tipo en run-time, verificar type checker"
+eval e (As t u              ) = eval e t 
+eval e (Unit                ) = VUnit
+eval e (Fst u               ) = case eval e u of
+                                  VPair x _ -> x
+                                  _ -> error "oh oh"
+eval e (Snd u               ) = case eval e u of
+                                  VPair _ x -> x
+                                  _ -> error "Pero eso no es un VPair"
+eval e (Pair t u            ) = let 
+                                  t' = eval e t
+                                  u' = eval e u
+                                in (VPair t' u') 
 -----------------------
 --- quoting
 -----------------------
 
 quote :: Value -> Term
 quote (VLam t f) = Lam t f
-
+quote (VUnit   ) = Unit
+quote (VPair t u) = Pair (quote t) (quote u)
 ----------------------
 --- type checker
 -----------------------
@@ -88,6 +113,13 @@ matchError t1 t2 =
     ++ render (printType t2)
     ++ " fue inferido."
 
+noPairError :: Type -> Either String Type
+noPairError t =
+  err
+    $ "se esperaba PairT a b, pero "
+    ++ render (printType t)
+    ++ " fue inferido."
+
 notfunError :: Type -> Either String Type
 notfunError t1 = err $ render (printType t1) ++ " no puede ser aplicado."
 
@@ -104,7 +136,18 @@ infer' c e (t :@: u) = infer' c e t >>= \tt -> infer' c e u >>= \tu ->
     FunT t1 t2 -> if (tu == t1) then ret t2 else matchError t1 tu
     _          -> notfunError tt
 infer' c e (Lam t u) = infer' (t : c) e u >>= \tu -> ret $ FunT t tu
-
+infer' c e (Let v u) = infer' c e v >>= \tv -> infer' (tv:c) e u
+infer' c e (As  t u) = infer' c e t >>= \tt -> if tt == u then ret u else matchError tt u
+infer' c e Unit      = ret UnitT
+infer' c e (Fst t  ) = infer' c e t >>= \tt -> 
+    case tt of
+      PairT x _ -> ret x
+      u         -> noPairError u
+infer' c e (Snd t  ) = infer' c e t >>= \tt -> 
+    case tt of
+      PairT _ x -> ret x
+      u         -> noPairError u
+infer' c e (Pair t u) = infer' c e t >>= \tt -> infer' c e u >>= \tu -> ret (PairT tt tu)
 {-
 La funcion infer debe devolver un valor de tipo Either String Type, pues queremos tener una forma de poder
 propagar los errores de inferencia de tipo a traves de la ejecucion.
