@@ -33,13 +33,21 @@ import Data.Char
     DEF     { TDef }
     FST     { TFst }
     SND     { TSnd }
+    R       { TRec }
+    SUCC    { TSucc }
+    ZERO    { TZero }
+    TYPEN   { TNat }
+    
     
 
 %right VAR
 %left '=' 
 %right '->'
-%left AS
 %right '\\' '.' LET IN
+%left AS
+%nonassoc SUCC
+%nonassoc R
+%nonassoc FST SND
 
 %%
 
@@ -51,13 +59,11 @@ Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
         | LET VAR '=' Exp IN Exp       { LLet $2 $4 $6 }
         | Exp AS Type                  { LAs $1 $3 }
-        | FST Tup                      { LFst $2 }
-        | SND Tup                      { LSnd $2 }
-        | Tup                          { $1 }
+        | FST Exp                      { LFst $2 }
+        | SND Exp                      { LSnd $2 }
+        | SUCC Exp                     { LSuc $2 }
+        | R Atom Atom Exp                { LRec $2 $3 $4 } 
         | NAbs                         { $1 }
-
-Tup     :: { LamTerm }
-        : '(' Exp ',' Exp ')'          { LPair $2 $4 }
 
 NAbs    :: { LamTerm }
         : NAbs Atom                    { LApp $1 $2 }
@@ -66,10 +72,14 @@ NAbs    :: { LamTerm }
 Atom    :: { LamTerm }
         : VAR                          { LVar $1 }
         | UNIT                         { LUnit }
+        | '(' Exp ',' Exp ')'          { LPair $2 $4 }
+        | ZERO                         { LZero }
         | '(' Exp ')'                  { $2 }
 
+
 Type    : TYPEE                        { EmptyT }
-        | TYPEU                        { UnitT }         
+        | TYPEU                        { UnitT }
+        | TYPEN                        { NatT }
         | Type '->' Type               { FunT $1 $3 }
         | '(' Type ')'                 { $2 }
         | '(' Type ',' Type ')'        { PairT $2 $4 }
@@ -125,6 +135,10 @@ data Token = TVar String
                | TFst
                | TSnd
                | TComma
+               | TRec
+               | TSucc
+               | TZero
+               | TNat
                deriving Show
 
 ----------------------------------
@@ -146,9 +160,11 @@ lexer cont s = case s of
                     (':':cs) -> cont TColon cs
                     ('=':cs) -> cont TEquals cs
                     (',':cs) -> cont TComma cs
+                    ('0':cs) -> cont TZero cs
                     unknown -> \line -> Failed $ 
                      "Línea "++(show line)++": No se puede reconocer "++(show $ take 10 unknown)++ "..."
                     where lexVar cs = case span isAlpha cs of
+                              ("Nat",rest)  -> cont TNat rest
                               ("Unit",rest) -> cont TTypeU rest
                               ("E",rest)    -> cont TTypeE rest
                               ("def",rest)  -> cont TDef rest
@@ -158,6 +174,8 @@ lexer cont s = case s of
                               ("unit",rest) -> cont TUnit rest
                               ("fst",rest)  -> cont TFst rest
                               ("snd",rest)  -> cont TSnd rest
+                              ("R",rest)    -> cont TRec rest
+                              ("suc",rest)  -> cont TSucc rest  
                               (var,rest)    -> cont (TVar var) rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs

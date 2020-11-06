@@ -1,3 +1,9 @@
 def I = \x:E. x
 def K = \x:E.\y:E.x
 def S = \x:E->E->E.\y:E->E.\z:E.(x z) (y z)
+
+-- Pruebas
+def pred = R 0 (\x:Nat.\y:Nat.y)
+def suma = \x:Nat.\y:Nat. R y (\x:Nat.\y:Nat.suc x) x
+def mult = \x:Nat.\y:Nat. R 0 (\w:Nat.\v:Nat.suma y w) x
+def fact = R (suc 0) (\y:Nat.\z:Nat. mult (suc z) y)

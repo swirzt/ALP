@@ -28,7 +28,7 @@ pp _  _  (Free  (Global s)) = text s
 
 pp ii vs (i :@: c         ) = sep
   [ parensIf (isLam i) (pp ii vs i)
-  , nest 1 (parensIf (isLam c || isApp c) (pp ii vs c))
+  , nest 1 (parensIf (isLam c || isApp c || isLet c) (pp ii vs c))
   ]
 
 pp ii vs (Lam t c) =
@@ -60,6 +60,30 @@ pp ii vs (Pair t u) =
     <> text " , "
     <> pp ii vs u
     <> text " )"
+
+pp ii vs (Fst t) =
+  text "fst "
+    <> pp ii vs t
+    
+pp ii vs (Snd t) = 
+  text "snd "
+    <> pp ii vs t
+
+pp ii vs Zero = text "0"
+
+pp ii vs (Suc n) =
+  text "suc "
+    <> parensIf (isNotZero n) (pp ii vs n)
+
+pp ii vs (Rec t1 t2 t3) = sep [text "R", parensIf (notValue t1) (pp ii vs t1), parensIf (notValue t1) (pp ii vs t2), parensIf (notValue t1) (pp ii vs t3)]
+
+
+isNotZero :: Term -> Bool
+isNotZero Zero = False
+isNotZero _ = True
+
+notValue :: Term -> Bool
+notValue x = (not (isUnit x)) && isNotZero x
 
 isLam :: Term -> Bool
 isLam (Lam _ _) = True
@@ -93,13 +117,18 @@ isPair :: Term -> Bool
 isPair (Pair _ _) = True
 isPair _          = False
 
+isR :: Term -> Bool
+isR (Rec _ _ _) = True
+isR _ = False
+
 -- pretty-printer de tipos
 printType :: Type -> Doc
 printType EmptyT = text "E"
 printType (FunT t1 t2) =
   sep [parensIf (isFun t1) (printType t1), text "->", printType t2]
 printType UnitT = text "Unit"
-printType (PairT a b) = sep ["(", printType a, ",", printType b, ")"]
+printType (PairT a b) = sep [text "(", printType a,text ",", printType b, text ")"]
+printType NatT = text "Nat"
 
 
 isFun :: Type -> Bool
@@ -114,9 +143,12 @@ fv (Lam _   u       ) = fv u
 fv (Let t   u       ) = fv t ++ fv u
 fv (As  t   u       ) = fv t
 fv Unit               = []
-fv (Fst (Pair t u)  ) = fv t
-fv (Snd (Pair t u)  ) = fv u
+fv (Fst t           ) = fv t
+fv (Snd t           ) = fv t
 fv (Pair t u        ) = fv u ++ fv t
+fv Zero               = []
+fv (Suc n          ) = fv n
+fv (Rec t1 t2 t3      ) = fv t1 ++ fv t2 ++ fv t3
 ---
 printTerm :: Term -> Doc
 printTerm t = pp 0 (filter (\v -> not $ elem v (fv t)) vars) t

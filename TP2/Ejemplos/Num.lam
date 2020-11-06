@@ -1,0 +1,8 @@
+def z0 = \x.false
+def succ = \x. pair true x
+def not = \x.x false true
+def isZ = \x. not (x true)
+def isNZ = \x. x true
+def predd = \x. (isZ x) z0 (x true)
+def suma = Y (\g x y. (isZ x) y (g (predd x) (succ y)))
+

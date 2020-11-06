@@ -30,8 +30,9 @@ conversion' b (LUnit     ) = Unit
 conversion' b (LFst t    ) = Fst (conversion' b t)
 conversion' b (LSnd t    ) = Snd (conversion' b t)
 conversion' b (LPair t u ) = Pair (conversion' b t) (conversion' b u)
-
-
+conversion' b LZero        = Zero
+conversion' b (LSuc t)     = Suc (conversion' b t)
+conversion' b (LRec t u v) = Rec (conversion' b t) (conversion' b u) (conversion' b v)
 -----------------------
 --- eval
 -----------------------
@@ -48,6 +49,9 @@ sub _ _ (Unit     )           = Unit
 sub i t (Fst p    )           = Fst (sub i t p)
 sub i t (Snd p    )           = Snd (sub i t p)
 sub i t (Pair p u )           = Pair (sub i t p) (sub i t u)
+sub i t Zero                  = Zero
+sub i t (Suc u    )           = Suc (sub i t u)
+sub i t (Rec p u v)           = Rec (sub i t p) (sub i t u) (sub i t v)
 
 -- evaluador de términos
 -- type NameEnv v t = [(Name, (v, t))]
@@ -68,22 +72,40 @@ eval e (As t u              ) = eval e t
 eval e (Unit                ) = VUnit
 eval e (Fst u               ) = case eval e u of
                                   VPair x _ -> x
-                                  _ -> error "oh oh"
+                                  _ -> error "Error de tipo en run-time, verificar type checker"
 eval e (Snd u               ) = case eval e u of
                                   VPair _ x -> x
-                                  _ -> error "Pero eso no es un VPair"
+                                  _ -> error "Error de tipo en run-time, verificar type checker"
 eval e (Pair t u            ) = let 
                                   t' = eval e t
                                   u' = eval e u
-                                in (VPair t' u') 
+                                in (VPair t' u')
+eval e Zero                   = VNum (NZero)        
+eval e (Suc t               ) = case eval e t of
+                                  VNum n -> VNum (NSuc n)
+                                  _ ->  error "Error de tipo en run-time, verificar type checker"
+eval e (Rec t u v           ) = case eval e v of
+                                     VNum (NZero) -> eval e t
+                                     VNum (NSuc n) -> let r = eval e (Rec t u (quote (VNum n))) in eval e ((u :@: quote r) :@: quote (VNum n))
+                                     _ ->  error "Error de tipo en run-time, verificar type checker"
+                                     
+-- Función definida por Wirzt porque es un capo de la optimización O(n)
+-- Gurvich quiere hacerlo O(n!)
+-- funRec :: Value -> Value -> NumVal -> Value
+-- funRec t f NZero = t
+-- funRec t f (Suc (n)) = f (funRec t f n) n                   
+
 -----------------------
 --- quoting
 -----------------------
 
 quote :: Value -> Term
-quote (VLam t f) = Lam t f
-quote (VUnit   ) = Unit
+quote (VLam t f ) = Lam t f
+quote (VUnit    ) = Unit
 quote (VPair t u) = Pair (quote t) (quote u)
+quote (VNum  n  ) = case n of
+                      NZero  -> Zero
+                      NSuc x -> Suc (quote (VNum x)) 
 ----------------------
 --- type checker
 -----------------------
@@ -148,6 +170,12 @@ infer' c e (Snd t  ) = infer' c e t >>= \tt ->
       PairT _ x -> ret x
       u         -> noPairError u
 infer' c e (Pair t u) = infer' c e t >>= \tt -> infer' c e u >>= \tu -> ret (PairT tt tu)
+infer' c e Zero = ret NatT
+infer' c e (Suc n) = infer' c e n >>= \tn -> if tn == NatT then ret tn else matchError NatT tn
+infer' c e (Rec t1 t2 t3) = infer' c e t1 >>= \tt1 -> infer' c e t2 >>= \tt2 -> 
+  case tt2 of
+    FunT tn1 (FunT NatT tn2) -> if (tn1 == tt1 && tn2 == tt1) then infer' c e t3 >>= \tt3 -> if tt3 == NatT then ret tt1 else matchError NatT tt3 else matchError (FunT  tt1 (FunT NatT tt1)) (FunT tn1 (FunT NatT tn2))
+    x -> matchError (FunT tt1 (FunT NatT tt1)) x
 {-
 La funcion infer debe devolver un valor de tipo Either String Type, pues queremos tener una forma de poder
 propagar los errores de inferencia de tipo a traves de la ejecucion.
