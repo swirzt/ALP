@@ -3,7 +3,16 @@ def K = \x:E.\y:E.x
 def S = \x:E->E->E.\y:E->E.\z:E.(x z) (y z)
 
 -- Pruebas
-def pred = R 0 (\x:Nat.\y:Nat.y)
+def pred = \x:Nat. R 0 (\x:Nat.\y:Nat.y) x
 def suma = \x:Nat.\y:Nat. R y (\x:Nat.\y:Nat.suc x) x
 def mult = \x:Nat.\y:Nat. R 0 (\w:Nat.\v:Nat.suma y w) x
-def fact = R (suc 0) (\y:Nat.\z:Nat. mult (suc z) y)
+def fact = \x:Nat.R (suc 0) (\y:Nat.\z:Nat. mult (suc z) y) x
+def ackm = \m:Nat.\n:Nat. R (suc n) (\w:Nat.\z:Nat.  m n) m
+def ackn = \m:Nat.\n:Nat.R (ackm (pred m) (suc 0)) (\w:Nat.\z:Nat. ackm (pred m) w) n
+def ack = ackm
+
+def appN = \m:Nat.\f:Nat->Nat.\n:Nat.R n (\w:Nat.\z:Nat. f w) m
+
+def ack = \m:Nat.\n:Nat. R (suc n) (\w:Nat.\z:Nat. appN (suc(suc n)) (ack)) m
+
+R t1 t2 (suc n) = t2 (R (suc n) t2 (pred m)) (pred m) 
