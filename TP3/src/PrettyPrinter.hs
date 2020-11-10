@@ -27,8 +27,8 @@ pp ii vs (Bound k         ) = text (vs !! (ii - k - 1))
 pp _  _  (Free  (Global s)) = text s
 
 pp ii vs (i :@: c         ) = sep
-  [ parensIf (isLam i) (pp ii vs i)
-  , nest 1 (parensIf (isLam c || isApp c || isLet c) (pp ii vs c))
+  [ parensIf (isLam i || isLet i || isR i || isFst i || isSnd i) (pp ii vs i)
+  , nest 1 (parensIf (isLam c || isApp c || isLet c || isAs c || isR c || isFst i || isSnd i) (pp ii vs c))
   ]
 
 pp ii vs (Lam t c) =
@@ -57,33 +57,38 @@ pp ii vs Unit = text "unit"
 pp ii vs (Pair t u) =
   text "( "
     <> pp ii vs t
-    <> text " , "
+    <> text ","
     <> pp ii vs u
     <> text " )"
 
 pp ii vs (Fst t) =
   text "fst "
-    <> pp ii vs t
+    <> parensIf (notValue t) (pp ii vs t)
     
 pp ii vs (Snd t) = 
   text "snd "
-    <> pp ii vs t
+    <> parensIf (notValue t) (pp ii vs t)
 
 pp ii vs Zero = text "0"
 
 pp ii vs (Suc n) =
   text "suc "
-    <> parensIf (isNotZero n) (pp ii vs n)
+    <> parensIf (notValue n) (pp ii vs n)
 
-pp ii vs (Rec t1 t2 t3) = sep [text "R", parensIf (notValue t1) (pp ii vs t1), parensIf (notValue t1) (pp ii vs t2), parensIf (notValue t1) (pp ii vs t3)]
+pp ii vs (Rec t1 t2 t3) = sep [text "R", parensIf (notValue t1) (pp ii vs t1), parensIf (notValue t2) (pp ii vs t2), parensIf (notValue t3) (pp ii vs t3)]
 
 
-isNotZero :: Term -> Bool
-isNotZero Zero = False
-isNotZero _ = True
+isZero :: Term -> Bool
+isZero Zero = True
+isZero _ = False
+
+isVar :: Term -> Bool
+isVar (Bound _) = True
+isVar (Free _)  = True
+isVar _         = False
 
 notValue :: Term -> Bool
-notValue x = (not (isUnit x)) && isNotZero x
+notValue x = not (isUnit x || isVar x || isZero x)
 
 isLam :: Term -> Bool
 isLam (Lam _ _) = True
@@ -103,7 +108,7 @@ isAs _        = False
 
 isUnit :: Term -> Bool
 isUnit Unit = True
-inUnit _    = False
+isUnit _    = False
 
 isFst :: Term -> Bool
 isFst (Fst _) = True

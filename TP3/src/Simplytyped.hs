@@ -63,7 +63,7 @@ eval e (Lam _ u  :@: Lam s v) = eval e (sub 0 (Lam s v) u)
 eval e (Lam t u1 :@: u2) = let v2 = eval e u2 in eval e (sub 0 (quote v2) u1)
 eval e (u        :@: v      ) = case eval e u of
   VLam t u' -> eval e (Lam t u' :@: v)
-  _         -> error "Error de tipo en run-time, verificar type checker"
+  a         -> error ("Error de tipo en run-time, verificar type checker. El tipo fue " ++ show a ++ " y evalue " ++ show u ++ " aplicado a " ++ show v)
 eval e (Let t u             ) = let t' = eval e t
     in case t' of
       VLam k l -> eval e (sub 0 (Lam k l) u)

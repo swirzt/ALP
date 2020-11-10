@@ -1,7 +1,7 @@
 /mnt/d/Documentos/Clases/ALP/TP3/src/Simplytyped.hs:
-  hash: c6c9f47bfd0b6d5cdbe6092e2bc01a467ff26130a16b315fdc1303f90e6490e0
-  size: 7631
-  modtime: 1604704335
+  hash: cfa85759e92842e3d792cbfd367cf74d457ca432a434dc21c4589b9b9141bdfe
+  size: 7711
+  modtime: 1605038952
 /mnt/d/Documentos/Clases/ALP/TP3/ChangeLog.md:
   hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
   size: 43
@@ -11,9 +11,9 @@
   size: 2310
   modtime: 1603882549
 /mnt/d/Documentos/Clases/ALP/TP3/src/Parse.y:
-  hash: d2c9b0821d4b195676a7471fbf3d455f83aea52886158ef01193a997d234476f
-  size: 6418
-  modtime: 1604702163
+  hash: 312b2afb0023486ecd1748ca0b24c589f1c2c943e088b6ffed0372d127ffc528
+  size: 6416
+  modtime: 1605036496
 /mnt/d/Documentos/Clases/ALP/TP3/.stack-work/dist/x86_64-linux/Cabal-3.0.1.0/build/autogen/cabal_macros.h:
   hash: f57bc47ffdd0b12e9753ce54ccd01ee1a3903b1e9a9a9613e4f509c67b4ff90b
   size: 7331
@@ -21,7 +21,7 @@
 /usr/include/stdc-predef.h:
   hash: ee35c95f8e09d071278e05e755a1bd41fbbf4517374d9464beabb1b16c1b58e9
   size: 2363
-  modtime: 1591291526
+  modtime: 1599038317
 /home/swirzt/.stack/programs/x86_64-linux/ghc-8.8.3/lib/ghc-8.8.3/include/ghcversion.h:
   hash: 40d1b759f485f1cd5a54141a6412691ac2b76930507289a16a6a7b89b045b4d2
   size: 524
@@ -39,6 +39,6 @@
   size: 3553
   modtime: 1604075354
 /mnt/d/Documentos/Clases/ALP/TP3/src/PrettyPrinter.hs:
-  hash: ef6efecd38ab6912b803644801a73168324ff3824309465291a894a493b5185d
-  size: 3470
-  modtime: 1604704129
+  hash: 8977cee4e008a9a01d4493ffc8130e21a392fb752656f4ff1d38366632ac497a
+  size: 3693
+  modtime: 1605043677

@@ -1,0 +1,14 @@
+def pot = \f:Nat->Nat.\x:Nat. R (f (suc 0)) (\z:Nat.\k:Nat.f z) x
+def ack = \m:Nat. R (\x:Nat.suc x) (\x:Nat->Nat.\z:Nat.pot x) m
+
+
+-- definiciones de prueba
+def pred = \x:Nat. R 0 (\x:Nat.\y:Nat.y) x
+def suma = \x:Nat.\y:Nat. R y (\x:Nat.\y:Nat.suc x) x
+def mult = \x:Nat.\y:Nat. R 0 (\w:Nat.\v:Nat.suma y w) x
+def fact = \x:Nat.R (suc 0) (\y:Nat.\z:Nat. mult (suc z) y) x
+def uno = suc 0
+def dos = suc uno
+def tres = suc dos
+def cuatro = suc tres
+def diez = suma (suma cuatro cuatro) dos -- Intentamos ack 10 10 (y nuestras pc no lo recomiendan)
