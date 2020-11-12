@@ -176,10 +176,3 @@ infer' c e (Rec t1 t2 t3) = infer' c e t1 >>= \tt1 -> infer' c e t2 >>= \tt2 ->
   case tt2 of
     FunT tn1 (FunT NatT tn2) -> if (tn1 == tt1 && tn2 == tt1) then infer' c e t3 >>= \tt3 -> if tt3 == NatT then ret tt1 else matchError NatT tt3 else matchError (FunT  tt1 (FunT NatT tt1)) (FunT tn1 (FunT NatT tn2))
     x -> matchError (FunT tt1 (FunT NatT tt1)) x
-{-
-La funcion infer debe devolver un valor de tipo Either String Type, pues queremos tener una forma de poder
-propagar los errores de inferencia de tipo a traves de la ejecucion.
-Lo que hace la funcion (>>=) es tomar un elemento de tipo Either String Type y una función de tipo Type -> Either String Type, y si recibe Left s (un error) devuelve Left s (propaga el error)
-pero si recibe un Right t (un tipo válido), aplica la funcion f al argumento t.
--}
-----------------------------------

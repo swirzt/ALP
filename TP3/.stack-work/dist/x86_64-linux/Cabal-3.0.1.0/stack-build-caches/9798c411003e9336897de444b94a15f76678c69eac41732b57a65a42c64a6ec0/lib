@@ -1,7 +1,7 @@
 /mnt/d/Documentos/Clases/ALP/TP3/src/Simplytyped.hs:
-  hash: cfa85759e92842e3d792cbfd367cf74d457ca432a434dc21c4589b9b9141bdfe
-  size: 7711
-  modtime: 1605038952
+  hash: 25f4a11e485eb65d834af75572a94cfa7b51b11e163d3dfb972e63546e9e63bc
+  size: 7220
+  modtime: 1605209957
 /mnt/d/Documentos/Clases/ALP/TP3/ChangeLog.md:
   hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
   size: 43
@@ -39,6 +39,6 @@
   size: 3553
   modtime: 1604075354
 /mnt/d/Documentos/Clases/ALP/TP3/src/PrettyPrinter.hs:
-  hash: 8977cee4e008a9a01d4493ffc8130e21a392fb752656f4ff1d38366632ac497a
-  size: 3693
-  modtime: 1605043677
+  hash: 1f745ab1fa68c52ad968d384ea92f37634f56de1052e3394fcfb37df0adad266
+  size: 3703
+  modtime: 1605212387

@@ -27,7 +27,7 @@ pp ii vs (Bound k         ) = text (vs !! (ii - k - 1))
 pp _  _  (Free  (Global s)) = text s
 
 pp ii vs (i :@: c         ) = sep
-  [ parensIf (isLam i || isLet i || isR i || isFst i || isSnd i) (pp ii vs i)
+  [ parensIf (isLam i || isLet i || isR i || isAs i || isFst i || isSnd i) (pp ii vs i)
   , nest 1 (parensIf (isLam c || isApp c || isLet c || isAs c || isR c || isFst i || isSnd i) (pp ii vs c))
   ]
 

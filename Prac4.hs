@@ -45,11 +45,11 @@
 -- null _  = False
 
 insert :: (a -> a -> Bool) -> [a] -> a -> [a]
-insert f xs x = foldr (\y ys  -> if (null ys)
-                                    then (if (f y x)
-                                          then (y : (x : ys))
-                                          else (y : ys))
-                                    else (if ((f y x) && (f x (head ys)))
-                                          then (y : (x : ys))
-                                          else (y : ys)))
+insert f xs x = foldr (\y ys  -> if null ys
+                                    then if f y x
+                                          then y : x : ys
+                                          else y : ys
+                                    else if f y x && f x (head ys)
+                                          then y : x : ys
+                                          else y : ys)
                         [] xs
