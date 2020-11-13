@@ -55,11 +55,11 @@ pp ii vs (As t u) =
 pp ii vs Unit = text "unit"
 
 pp ii vs (Pair t u) =
-  text "( "
+  text "("
     <> pp ii vs t
     <> text ","
     <> pp ii vs u
-    <> text " )"
+    <> text ")"
 
 pp ii vs (Fst t) =
   text "fst "
@@ -123,8 +123,8 @@ isPair (Pair _ _) = True
 isPair _          = False
 
 isR :: Term -> Bool
-isR (Rec _ _ _) = True
-isR _ = False
+isR Rec{} = True
+isR _     = False
 
 -- pretty-printer de tipos
 printType :: Type -> Doc
@@ -156,5 +156,5 @@ fv (Suc n          ) = fv n
 fv (Rec t1 t2 t3      ) = fv t1 ++ fv t2 ++ fv t3
 ---
 printTerm :: Term -> Doc
-printTerm t = pp 0 (filter (\v -> not $ elem v (fv t)) vars) t
+printTerm t = pp 0 (filter (\v -> v `notElem` fv t) vars) t
 
