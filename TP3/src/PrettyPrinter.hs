@@ -27,8 +27,8 @@ pp ii vs (Bound k         ) = text (vs !! (ii - k - 1))
 pp _  _  (Free  (Global s)) = text s
 
 pp ii vs (i :@: c         ) = sep
-  [ parensIf (isLam i || isLet i || isR i || isAs i || isFst i || isSnd i) (pp ii vs i)
-  , nest 1 (parensIf (isLam c || isApp c || isLet c || isAs c || isR c || isFst i || isSnd i) (pp ii vs c))
+  [ parensIf (notValue i && not (isApp i)) (pp ii vs i)
+  , nest 1 (parensIf (notValue c) (pp ii vs c))
   ]
 
 pp ii vs (Lam t c) =
@@ -43,23 +43,23 @@ pp ii vs (Let t u) =
   text "let "
     <> text (vs !! ii)
     <> text " = "
-    <> pp ii vs t
+    <> parensIf (notValue t) (pp ii vs t)
     <> text " in "
     <> pp (ii+1) vs u
 
 pp ii vs (As t u) = 
-  pp ii vs t
+  parensIf (notValue t) (pp ii vs t)
     <> text " as "
     <> printType u
 
 pp ii vs Unit = text "unit"
 
 pp ii vs (Pair t u) =
-  text "( "
+  text "("
     <> pp ii vs t
     <> text ","
     <> pp ii vs u
-    <> text " )"
+    <> text ")"
 
 pp ii vs (Fst t) =
   text "fst "
@@ -87,9 +87,18 @@ isVar (Bound _) = True
 isVar (Free _)  = True
 isVar _         = False
 
-notValue :: Term -> Bool
-notValue x = not (isUnit x || isVar x || isZero x)
+isUnit :: Term -> Bool
+isUnit Unit = True
+isUnit _    = False
 
+isPair :: Term -> Bool
+isPair (Pair _ _) = True
+isPair _          = False
+
+notValue :: Term -> Bool --El nombre de la función es por comodidad
+notValue x = not (isUnit x || isVar x || isZero x || isPair x)
+
+--Código legacy
 isLam :: Term -> Bool
 isLam (Lam _ _) = True
 isLam _         = False
@@ -106,10 +115,6 @@ isAs :: Term -> Bool
 isAs (As _ _) = True
 isAs _        = False 
 
-isUnit :: Term -> Bool
-isUnit Unit = True
-isUnit _    = False
-
 isFst :: Term -> Bool
 isFst (Fst _) = True
 isFst _       = False
@@ -118,13 +123,10 @@ isSnd :: Term -> Bool
 isSnd (Snd _) = True
 isSnd _       = False
 
-isPair :: Term -> Bool
-isPair (Pair _ _) = True
-isPair _          = False
-
 isR :: Term -> Bool
 isR (Rec _ _ _) = True
-isR _ = False
+isR _           = False
+----
 
 -- pretty-printer de tipos
 printType :: Type -> Doc
@@ -132,7 +134,12 @@ printType EmptyT = text "E"
 printType (FunT t1 t2) =
   sep [parensIf (isFun t1) (printType t1), text "->", printType t2]
 printType UnitT = text "Unit"
-printType (PairT a b) = sep [text "(", printType a,text ",", printType b, text ")"]
+printType (PairT a b) = 
+  text "("
+    <> printType a
+    <> text ","
+    <> printType b
+    <> text ")"
 printType NatT = text "Nat"
 
 

@@ -1,7 +1,7 @@
 /mnt/d/Documentos/Clases/ALP/TP3/src/Simplytyped.hs:
-  hash: 25f4a11e485eb65d834af75572a94cfa7b51b11e163d3dfb972e63546e9e63bc
-  size: 7220
-  modtime: 1605209957
+  hash: dfa43acbc1c235a2df16a5af9ad650eb578c0c175f5f186fbf6839a7f3d466c6
+  size: 7230
+  modtime: 1605305502
 /mnt/d/Documentos/Clases/ALP/TP3/ChangeLog.md:
   hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
   size: 43
@@ -11,9 +11,9 @@
   size: 2310
   modtime: 1603882549
 /mnt/d/Documentos/Clases/ALP/TP3/src/Parse.y:
-  hash: 312b2afb0023486ecd1748ca0b24c589f1c2c943e088b6ffed0372d127ffc528
+  hash: 9336bbe1ba50cd60109d99477f6b9146d1c9e9a218bd41b89f43daa73812a378
   size: 6416
-  modtime: 1605036496
+  modtime: 1605308520
 /mnt/d/Documentos/Clases/ALP/TP3/.stack-work/dist/x86_64-linux/Cabal-3.0.1.0/build/autogen/cabal_macros.h:
   hash: f57bc47ffdd0b12e9753ce54ccd01ee1a3903b1e9a9a9613e4f509c67b4ff90b
   size: 7331
@@ -39,6 +39,6 @@
   size: 3553
   modtime: 1604075354
 /mnt/d/Documentos/Clases/ALP/TP3/src/PrettyPrinter.hs:
-  hash: 1f745ab1fa68c52ad968d384ea92f37634f56de1052e3394fcfb37df0adad266
-  size: 3703
-  modtime: 1605212387
+  hash: 081bbadeaf817389971eddd7a9aebb41e0ce7963ff1554c36543d68b3cd57d0d
+  size: 3774
+  modtime: 1605308900

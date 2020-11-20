@@ -20,7 +20,7 @@ fv (Abs s t1) = let s1 = fv t1
 abecedario = "zyxwvutsrqponmlkjihgfedcba"
 
 varselect :: Set.Set Variable -> Maybe Variable
-varselect s = varselect' abecedario s
+varselect = varselect' abecedario
 
 varselect' :: String -> Set.Set Variable -> Maybe Variable
 varselect' [] _ = Nothing
@@ -40,7 +40,7 @@ subs a@(Abs y p) n x | y == x = a
                           then case varselect fvpn of
                                  Nothing -> error "Me quedé sin variables"
                                  Just z -> subs (Abs z (subs p (Var z) y)) n x
-                          else (Abs y (subs p n x))
+                          else Abs y (subs p n x)
 
 alpha :: Lambda -> Variable -> Lambda
 alpha (Abs y p) x = Abs x (subs p (Var x) y)
@@ -96,7 +96,7 @@ parseReem = do l <- parseLambda' Nothing
                <|> parseLambda' Nothing
 
 imprime :: Lambda -> String
-imprime (Var c) = c:[]
+imprime (Var c) = [c]
 imprime (App v t) = "(" ++ imprime v ++ " " ++ imprime t ++ ")"
 imprime (Abs v p) = "($" ++ v:[] ++ ". " ++ imprime p ++ ")"
 imprime (Reem p q x) = imprime p ++ "[" ++ imprime q ++ "/" ++ x:[] ++ "]"
