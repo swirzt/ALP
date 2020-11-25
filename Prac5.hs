@@ -124,7 +124,10 @@ appCont (C g) = g
 
 mapM :: Monad m => (a -> m b) -> [a] -> m [b]
 mapM f [] = return []
-mapM f (x:xs) = f x >>= \y -> mapM f xs >>= \ys -> return $ y : ys
+mapM f (x:xs) = do y <- f x
+                   ys <- mapM f xs
+                   return (y:ys)
+-- mapM f (x:xs) = f x >>= \y -> mapM f xs >>= \ys -> return $ y : ys
 
 foldM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
 foldM _ e [] = return e
@@ -135,7 +138,35 @@ foldM f e (x:xs) = f e x >>= \r -> foldM f r xs
 -- do x <- m
 --    y <- h x
 --    z <- f y
---    g z
+--    return (g z)
 
+-- /* Ejercicio 11 *\
+-- do x <- do z <- y
+--            w <- f z
+--            return (g w z)
+--    y <- h x 3
+--    if y then return 7
+--         else do z <- h x 2
+--                 return (k z)
 
+-- (y >>= \z -> f z >>= \w -> return (g w z)) >>= \x -> h x 3 >>= \y -> if y then return 7
+                                                                          else h x 2 >>= \z -> return (k z)
+-- /* Ejercicio 12 *\
+-- monad.1
+-- do y <- return x
+--    f y
 
+-- monad.2
+-- do y <- t
+--    return y
+
+-- monad.3
+-- do x <- t
+--    y <- f x
+--    g y
+
+-- ===
+
+-- do x <- t
+--    (\y -> do z <- f y
+--              g z) x
