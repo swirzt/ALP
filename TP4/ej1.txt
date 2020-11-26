@@ -1,0 +1,104 @@
+newtype State a = State {runState :: Env → Pair a Env}
+
+instance Monad State where 
+return x = State (λs→(x :!: s))
+m >>= f = State (λs→let(v :!: s′) = runState m s in runState (f v) s′)
+
+monad.1:
+return x >>= f 
+<=> def return
+State (\s -> (x :!: s)) >>= f
+<=> def >>=
+State (\s -> let (v :!: s') = runState (State ((\s -> (x :!: s)))) s in runState (f v) s')
+<=> def runState
+State (\s -> let (v :!: s') = (\s -> (x :!: s)) s in runState (f v) s')
+<=> B-redex
+State (\s -> let (v :!: s') = (x :!: s)  in runState (f v) s')
+<=> def Let
+State (\s -> runState (f x) s)
+<=> E-Redex
+State (runState f x)
+<=> State . runState = Id
+f x
+
+monad.2:
+State a >>= return
+<=> def >>=
+State (\s → let (v :!: s′) = runState State a s in runState (return v) s′)
+<=> def return
+State (\s → let (v :!: s′) = runState State a s in runState (State (\s→(v :!: s))) s′)
+<=> def runState
+State (\s → let (v :!: s′) = runState State a s in (\s→(v :!: s)) s′)
+<=> B-redex
+State (\s → let (v :!: s′) = runState State a s in (v :!: s'))
+<=> def runState
+State (\s → let (v :!: s′) = a s in (v :!: s'))
+<=> def let
+State (\s → a s)
+<=> E-redex
+State a 
+
+monad.3:
+
+(State a >>= f) >>= g
+<=> def de >>= f
+(State (\s→let (v :!: s′) = runState (State a) s in runState (f v) s′)) >>= g
+<=> def de runState
+(State (\s→let (v :!: s′) = a s in runState (f v) s′)) >>= g
+<=> def de >>= g
+State (\s→let (v :!: s′) = runState (State (\s→let(v :!: s′) = a s in runState (f v) s′)) s in runState (g v) s′)
+<=> def de runState
+State (\s→let (v :!: s′) = (\s→let (v :!: s′) = a s in runState (f v) s′) s in runState (g v) s′)
+<=> B-Redex
+State (\s→let (v :!: s′) = (let (v :!: s′) = a s in runState (f v) s′) in runState (g v) s′)
+--- Hasta aca es todo legal, despues Santi empieza a flashear
+<=> a s = (k :!: p)
+State (\s→let (v :!: s′) = (let (v :!: s′) = (k :!: p) in runState (f v) s′) in runState (g v) s′)
+<=> def let
+State (\s→let (v :!: s′) = (runState (f k) p) in runState (g v) s′)
+<=> f k = State h
+State (\s→let (v :!: s′) = (runState (State h) p) in runState (g v) s′)
+<=> def runState
+State (\s→let (v :!: s′) = h p in runState (g v) s′)
+---------------------------------<=> h p = (kk :!: pp)
+---------------------------------State (\s→let (v :!: s′) = (kk :!: pp) in runState (g v) s′)
+---------------------------------<=> def let
+---------------------------------State (\s -> runState (g kk) pp)
+
+
+f v = State h
+g v = State h'
+
+m >>= f = State (λs→let(v :!: s′) = runState m s in runState (f v) s′)
+
+State a >>= (\x -> f x >>= g)
+<=> def >>=
+State (\s -> let (v :!: s') = runState (State a) s in runState ((\x->f x >>= g) v) s')
+<=>def runState
+State (\s -> let (v :!: s') = a s in runState ((\x->f x >>= g) v) s')
+<=> B-Redex
+State (\s -> let (v :!: s') = a s in runState (f v >>= g) s')
+<=> def >>=
+State (\s -> let (v :!: s') = a s in runState (State (\s2 -> let (v2 :!: s2') = runState (f v) s2 in runState (g v2) s2')) s')
+<=> def runState
+State (\s -> let (v :!: s') = a s in (\s2 -> let (v2 :!: s2') = runState (f v) s2 in runState (g v2) s2') s')
+<=> B-Redex
+State (\s -> let (v :!: s') = a s in (let (v2 :!: s2') = runState (f v) s' in runState (g v2) s2'))
+-------------------------------- Gurvbich gato
+<=> a s = (k :!: p)
+State (\s -> let (v :!: s') = (k :!: p) in (let (v2 :!: s2') = runState (f v) s' in runState (g v2) s2'))
+<=> def let
+State (\s -> let (v2 :!: s2') = runState (f k) p in runState (g v2) s2')
+<=> f k = State h
+State (\s -> let (v2 :!: s2') = runState (State h) p in runState (g v2) s2')
+<=> def runState
+State (\s -> let (v2 :!: s2') = h p in runState (g v2) s2')
+-------------------------------------------<=> h p = (kk :!: pp)
+-------------------------------------------State (\s -> let (v2 :!: s2') = (kk :!: pp) in runState (g v2) s2')
+-------------------------------------------<=> def let
+-------------------------------------------State (\s -> runState (g kk) pp)
+
+
+a s = (k :!: p)
+f k = State h
+h p = (kk :!: pp)
