@@ -21,4 +21,4 @@ class Monad m => MonadError m where
 -- llevar el costo de las operaciones efectuadas. Llamela MonadCost.
 class Monad m => MonadCost m where
     --Suma trabajo
-    work :: Integer -> m ()
+    work :: Cost -> m ()

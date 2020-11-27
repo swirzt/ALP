@@ -19,9 +19,9 @@
   size: 10181
   modtime: 1605470504
 /mnt/d/Documentos/Clases/ALP/TP4/src/Eval3.hs:
-  hash: c37494136612940bf2744f574556d157ac494a13c1ade36d93292c06a9bc31af
-  size: 5423
-  modtime: 1606430708
+  hash: 0f381c8dcbd53e622a7fd2c3f75c6ad1b96754e1b721ac12ae31b142a812a5af
+  size: 4952
+  modtime: 1606509381
 /usr/include/stdc-predef.h:
   hash: ee35c95f8e09d071278e05e755a1bd41fbbf4517374d9464beabb1b16c1b58e9
   size: 2363
@@ -31,17 +31,17 @@
   size: 1752
   modtime: 1603109727
 /mnt/d/Documentos/Clases/ALP/TP4/src/AST.hs:
-  hash: b655cfbd53d4a851c614440f5f5cadabbc1c6ed2193caba7c9631ab823ed87ff
-  size: 1230
-  modtime: 1605469923
+  hash: f1efa749d9a19c42578d0a06d1dcc47815076bd64eb3c4d6b20866c92944de94
+  size: 1231
+  modtime: 1606509057
 /mnt/d/Documentos/Clases/ALP/TP4/TP4.cabal:
   hash: 729d63ce01b645a1bf76a097124040b200873a395791c3215a5be3a73f56b478
   size: 1662
   modtime: 1605465096
 /mnt/d/Documentos/Clases/ALP/TP4/src/Monads.hs:
-  hash: 4178fc2f7d51673c4c55e12ad9068d4ba92ec3da5a20cc4e9eed3282026da0af
-  size: 751
-  modtime: 1606428576
+  hash: 35243f4331158e6a2ba67911e58b06fbf53907bcccc5aab25c41066e39da9fdd
+  size: 748
+  modtime: 1606509536
 /mnt/d/Documentos/Clases/ALP/TP4/src/Parser.hs:
   hash: ece8ed35f8ba6a22f7d39ee00c6a2ed95265c7830013a93c7160cf021004df23
   size: 30894

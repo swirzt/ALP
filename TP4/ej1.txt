@@ -51,25 +51,6 @@ State (\s→let (v :!: s′) = runState (State (\s→let(v :!: s′) = a s in ru
 State (\s→let (v :!: s′) = (\s→let (v :!: s′) = a s in runState (f v) s′) s in runState (g v) s′)
 <=> B-Redex
 State (\s→let (v :!: s′) = (let (v :!: s′) = a s in runState (f v) s′) in runState (g v) s′)
---- Hasta aca es todo legal, despues Santi empieza a flashear
-<=> a s = (k :!: p)
-State (\s→let (v :!: s′) = (let (v :!: s′) = (k :!: p) in runState (f v) s′) in runState (g v) s′)
-<=> def let
-State (\s→let (v :!: s′) = (runState (f k) p) in runState (g v) s′)
-<=> f k = State h
-State (\s→let (v :!: s′) = (runState (State h) p) in runState (g v) s′)
-<=> def runState
-State (\s→let (v :!: s′) = h p in runState (g v) s′)
----------------------------------<=> h p = (kk :!: pp)
----------------------------------State (\s→let (v :!: s′) = (kk :!: pp) in runState (g v) s′)
----------------------------------<=> def let
----------------------------------State (\s -> runState (g kk) pp)
-
-
-f v = State h
-g v = State h'
-
-m >>= f = State (λs→let(v :!: s′) = runState m s in runState (f v) s′)
 
 State a >>= (\x -> f x >>= g)
 <=> def >>=
@@ -84,21 +65,14 @@ State (\s -> let (v :!: s') = a s in runState (State (\s2 -> let (v2 :!: s2') = 
 State (\s -> let (v :!: s') = a s in (\s2 -> let (v2 :!: s2') = runState (f v) s2 in runState (g v2) s2') s')
 <=> B-Redex
 State (\s -> let (v :!: s') = a s in (let (v2 :!: s2') = runState (f v) s' in runState (g v2) s2'))
--------------------------------- Gurvbich gato
-<=> a s = (k :!: p)
-State (\s -> let (v :!: s') = (k :!: p) in (let (v2 :!: s2') = runState (f v) s' in runState (g v2) s2'))
-<=> def let
-State (\s -> let (v2 :!: s2') = runState (f k) p in runState (g v2) s2')
-<=> f k = State h
-State (\s -> let (v2 :!: s2') = runState (State h) p in runState (g v2) s2')
-<=> def runState
-State (\s -> let (v2 :!: s2') = h p in runState (g v2) s2')
--------------------------------------------<=> h p = (kk :!: pp)
--------------------------------------------State (\s -> let (v2 :!: s2') = (kk :!: pp) in runState (g v2) s2')
--------------------------------------------<=> def let
--------------------------------------------State (\s -> runState (g kk) pp)
 
+--- Dem let let in in == let in let in -----
+let v1 = (let v2 = f s in g v2) in h v1 -> let v1 = (g (f s)) in h v1 -> h (g (f s))
+let v2 = f s in let v1 = g v2 in h v1 -> let v1 = g (f s) in h v1 -> h (g (f s))
+-------------------------
 
-a s = (k :!: p)
-f k = State h
-h p = (kk :!: pp)
+Ahora con f = a
+v1 = (v:!:s')
+v2 = (v:!:s')
+g = (\(v:!: s') -> runState (f v) s')
+h = (\(v:!: s') -> runState (g v) s')

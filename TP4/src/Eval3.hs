@@ -36,11 +36,12 @@ instance Applicative StateErrorCost where
 
 instance Monad StateErrorCost where
   return x = StateErrorCost (\s -> Right ((x :!: s),0))
-  m >>= f = StateErrorCost (\s -> case runStateErrorCost m s of
-                        Left x -> Left x
-                        Right ((v:!:s'),n) -> case runStateErrorCost (f v) s' of
+  m >>= f = StateErrorCost (\s ->
+                case runStateErrorCost m s of
+                      Left x -> Left x
+                      Right ((v:!:s'),n) -> case runStateErrorCost (f v) s' of
                                               Left x -> Left x
-                                              Right ((v':!:s''),n') -> Right ((v':!:s''),n'+n))
+                                              Right ((v':!:s''),n') -> Right ((v':!:s''),n'+ n))
 -- Ejercicio 3.c: Dar una instancia de MonadCost para StateErrorCost.
 instance MonadCost StateErrorCost where
   work i = StateErrorCost (\s -> Right ((() :!: s),i))
@@ -86,61 +87,41 @@ stepComm e@(While b s1) = do bv <- evalExp b
                              if bv then stepComm (Seq s1 e)
                                    else stepComm Skip
 
-                                   
-evalBi :: (MonadState m, MonadError m, MonadCost m) => (a -> a -> b) -> Exp a -> Exp a -> m b
-evalBi f e1 e2 = do v1 <- evalExp e1
-                    v2 <- evalExp e2
-                    work 1
-                    return (f v1 v2)
+evalBi :: (MonadState m, MonadError m, MonadCost m) => Cost -> (a -> a -> b) -> Exp a -> Exp a -> m b
+evalBi c f e1 e2 = do v1 <- evalExp e1
+                      v2 <- evalExp e2
+                      work c
+                      return (f v1 v2)
 
-{-
-evalBi :: (MonadState m, MonadError m, MonadCost m) => (a -> a -> b) -> Exp a -> Exp a -> m b
-evalBi f e1 e2 = do v1 <- evalExp e1
-                    v2 <- evalExp e2
-                    work (funcCost f)
-                    return (f v1 v2)
-
-funcCost :: (a -> a -> b) -> Cost
-funcCost (*) = 2
-funcCost _ = 1
--}
-
-evalUn :: (MonadState m, MonadError m, MonadCost m) => (a -> a) -> Exp a -> m a
-evalUn f e = do v <- evalExp e
-                work 1
-                return (f v)
-
+evalUn :: (MonadState m, MonadError m, MonadCost m) => Cost -> (a -> a) -> Exp a -> m a
+evalUn c f e = do v <- evalExp e
+                  work c
+                  return (f v)
 
 -- Evalua una expresion 
 evalExp :: (MonadState m, MonadError m, MonadCost m) => Exp a -> m a
 evalExp (Const i) = return i
 evalExp (Var s) = lookfor s
-evalExp (UMinus e) = evalUn (\s -> - s) e
-evalExp (Plus e1 e2) = evalBi (+) e1 e2
-evalExp (Minus e1 e2) = evalBi (-) e1 e2
-evalExp (Times e1 e2) = do v1 <- evalExp e1
-                           v2 <- evalExp e2
-                           work 2
-                           return (v1 * v2)
+evalExp (UMinus e) = evalUn 1 (\s -> - s) e
+evalExp (Plus e1 e2) = evalBi 1 (+) e1 e2
+evalExp (Minus e1 e2) = evalBi 1 (-) e1 e2
+evalExp (Times e1 e2) = evalBi 2 (*) e1 e2
 evalExp (Div e1 e2) = do v1 <- evalExp e1
                          v2 <- evalExp e2
                          work 2
-                         if v2 == 0 then throw DivByZero else return (div v1 v2)
+                         if v2 == 0 then throw DivByZero
+                                    else return (div v1 v2)
 evalExp BTrue = return True
 evalExp BFalse = return False
-evalExp (Lt e1 e2) = evalBi (<) e1 e2
-evalExp (Gt e1 e2) = evalBi (>) e1 e2
-evalExp (And e1 e2) = evalBi (&&) e1 e2
-evalExp (Or e1 e2) = evalBi (||) e1 e2 
-evalExp (Not e) = evalUn not e
-evalExp (Eq e1 e2) = evalBi (==) e1 e2 
-evalExp (NEq e1 e2) = evalBi (/=) e1 e2
+evalExp (Lt e1 e2) = evalBi 1 (<) e1 e2
+evalExp (Gt e1 e2) = evalBi 1 (>) e1 e2
+evalExp (And e1 e2) = evalBi 1 (&&) e1 e2
+evalExp (Or e1 e2) = evalBi 1 (||) e1 e2 
+evalExp (Not e) = evalUn 1 not e
+evalExp (Eq e1 e2) = evalBi 1 (==) e1 e2 
+evalExp (NEq e1 e2) = evalBi 1 (/=) e1 e2
 evalExp (EAssgn s e) = do v <- evalExp e
                           update s v
                           return v
 evalExp (ESeq e1 e2) = do evalExp e1
                           evalExp e2
-
-
--- No podemos hacer pattern matching a las funciones?
--- No podemos castear el tipo de Div 
