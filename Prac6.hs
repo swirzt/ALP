@@ -228,6 +228,23 @@ instance Monoid a => Monad (Output a) where
 --     return x = Out (x, mempty)
 --     Out (x, n) >>= f = let Out (y,m) = f x in Out (y,mappend m n)
 
+{-
+monad.1
+return x >>= f
+= def return
+Out (x,mempty) >>= f
+= def >>=
+let Out (y,m) = f x in Out (y,mappend mempty m)
+= mempty neutro en mappend
+let Out (y,m) = f x in Out (y,m)
+= eta redex
+f x
+
+monad.2
+Out (x,n) >>= return
+
+-}
+
 write :: Monoid w => w -> Output w ()
 write w = Out ((),w)
 
