@@ -36,12 +36,10 @@ instance Applicative StateErrorCost where
 
 instance Monad StateErrorCost where
   return x = StateErrorCost (\s -> Right ((x :!: s),0))
-  m >>= f = StateErrorCost (\s ->
-                case runStateErrorCost m s of
-                      Left x -> Left x
-                      Right ((v:!:s'),n) -> case runStateErrorCost (f v) s' of
-                                              Left x -> Left x
-                                              Right ((v':!:s''),n') -> Right ((v':!:s''),n'+ n))
+  m >>= f = StateErrorCost (\s -> do ((v :!: s'),n) <- runStateErrorCost m s
+                                     ((u :!: t ),n') <- runStateErrorCost (f v) s'
+                                     return ((u :!: t), n + n'))
+
 -- Ejercicio 3.c: Dar una instancia de MonadCost para StateErrorCost.
 instance MonadCost StateErrorCost where
   work i = StateErrorCost (\s -> Right ((() :!: s),i))
@@ -61,9 +59,8 @@ instance MonadState StateErrorCost where
 -- Ejercicio 3.f: Implementar el evaluador utilizando la monada StateErrorCost.
 -- Evalua un programa en el estado nulo
 eval :: Comm -> Either Error (Env, Cost)
-eval p = case runStateErrorCost (stepCommStar p) initEnv of
-              Left e -> Left e
-              Right ((_:!:s),i) -> Right (s,i)
+eval p = runStateErrorCost (stepCommStar p) initEnv >>=
+              \((_:!:s),i) -> return (s,i)
 
 -- Evalua multiples pasos de un comando, hasta alcanzar un Skip
 stepCommStar :: (MonadState m, MonadError m, MonadCost m) => Comm -> m ()

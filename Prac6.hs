@@ -243,6 +243,14 @@ f x
 monad.2
 Out (x,n) >>= return
 
+monad.3
+(Output (x,n) >>= f) >>= g
+= def >>=
+(let (y,m) = f x in Output (y,mappend n m)) >>= g
+= prop let
+let (y,m) = f x in Output (y,mappend n m) >>= g
+=def >>=
+let (y,m) = f x in let (y',o) = g y in Output (y', mappend (mappend n m) o)
 -}
 
 write :: Monoid w => w -> Output w ()

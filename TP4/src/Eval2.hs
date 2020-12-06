@@ -36,9 +36,8 @@ instance Applicative StateError where
 -- Ejercicio 2.a: Dar una instancia de Monad para StateError:
 instance Monad StateError where
   return x = StateError (\s -> Right (x :!: s))
-  m >>= f = StateError (\s -> case runStateError m s of
-                          Left x -> Left x
-                          Right (v :!: s') -> runStateError (f v) s')
+  m >>= f = StateError (\s -> runStateError m s >>=
+                              \(v :!: s') -> runStateError (f v) s')
 
 -- Ejercicio 2.b: Dar una instancia de MonadError para StateError:
 instance MonadError StateError where
@@ -54,9 +53,7 @@ instance MonadState StateError where
 -- Ejercicio 2.d: Implementar el evaluador utilizando la monada StateError.
 -- Evalua un programa en el estado nulo
 eval :: Comm -> Either Error Env
-eval p = case runStateError (stepCommStar p) initEnv of
-            Left e -> Left e
-            Right (_ :!: s) -> Right s
+eval p = runStateError (stepCommStar p) initEnv >>= \(_:!:s) -> return s
 
 -- Evalua multiples pasos de un comando, hasta alcanzar un Skip
 stepCommStar :: (MonadState m, MonadError m) => Comm -> m ()
@@ -100,7 +97,8 @@ evalExp (Minus e1 e2) = evalBi (-) e1 e2
 evalExp (Times e1 e2) = evalBi (*) e1 e2
 evalExp (Div e1 e2) = do v1 <- evalExp e1
                          v2 <- evalExp e2
-                         if v2 == 0 then throw DivByZero else return (div v1 v2)
+                         if v2 == 0 then throw DivByZero
+                                    else return (div v1 v2)
 evalExp BTrue = return True
 evalExp BFalse = return False
 evalExp (Lt e1 e2) = evalBi (<) e1 e2
