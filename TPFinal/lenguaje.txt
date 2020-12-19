@@ -1,0 +1,12 @@
+Sintaxis del lenguaje
+
+Comm ::= Comm; Comm 
+       | Avanzar Exp
+       | Retroceder Exp
+       | Derecha Exp
+       | Izquierda Exp
+       | LapizArriba
+       | LapizAbajo
+       | Casa
+       | Limpiar
+       | Para Var hacer Comm fin
