@@ -2,16 +2,16 @@ name:                TPFinal
 version:             0.1.0.0
 github:              "githubuser/TPFinal"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2020 Author name here"
+author:              "Santiago Wirzt"
+maintainer:          "swirzt@gmail.com"
+copyright:           "2020 Santiago Wirzt"
 
 extra-source-files:
 - README.md
 - ChangeLog.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
+# synopsis:            LogoWriter in Haskell
 # category:            Web
 
 # To avoid duplicated efforts in documentation and dealing with the
@@ -21,6 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- gloss
 
 library:
   source-dirs: src

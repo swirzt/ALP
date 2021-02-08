@@ -1,12 +1,62 @@
 Sintaxis del lenguaje
 
-Comm ::= Comm; Comm 
-       | Avanzar Exp
-       | Retroceder Exp
-       | Derecha Exp
-       | Izquierda Exp
-       | LapizArriba
-       | LapizAbajo
-       | Casa
-       | Limpiar
-       | Para Var hacer Comm fin
+Comm ::= Comm Comm 
+       | forward Exp | fd Exp
+       | back Exp | bk Exp
+       | right Exp | rt Exp
+       | left Exp | lt Exp
+       | clearscreen | cs
+       | clean
+       | penup | pu
+       | pendown | pd
+       | hideturtle | ht
+       | showturtle | st
+       | home
+       | setx Exp | sety Exp | setxy Exp Exp
+       | setheading Exp | seth Exp
+       | repeat Exp [Comm]
+       | print Exp
+       | to String Args Comm end
+       | setcolor Exp
+       | make String Exp
+       | for [String Exp Exp] [Comm]
+       | for [String Exp Exp Exp] [Comm]
+       | if Bool [Comm]
+       | fill
+       | filled Exp [Comm]
+       | wait Exp
+       | do.while [Comm] Bool
+
+List ::= pos
+       | list SecExp
+       | ( List )
+
+SecExp ::= SecExp Exp
+         | Exp
+
+Exp ::= Int
+      | xcor | ycor
+      | heading
+      | towards List
+      | :String
+      | sum Exp Exp
+      | difference Exp Exp
+      | first List
+      | last List
+      | item Exp List
+      | pick List
+      | butfirst List
+      | butlast List
+      | readword
+      | ( Exp )
+
+Bool ::= Exp > Exp
+       | Exp < Exp
+       | Exp = Exp
+       | Exp <= Exp
+       | Exp >= Exp
+       | Exp != Exp
+       | Bool && Bool
+       | Bool || Bool
+       | not Bool
+       | ( Bool )

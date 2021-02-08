@@ -14,16 +14,20 @@ setx Int
 sety Int (ambos dibujan hasta la pos)
 setxy Int Int
 seth Int (ángulo absoluto)
+-------------- cosas difíciles
 arc ANGULO RADIO (arco de angulo con radio distancia de la tortuga)
 csh Int/String (implementar cambio de formas, mucho esfuerzo)
+---------------------------- fin dificil
 repeat Int [comm]
 print ?????
 ------pos (devuelve x y)
-------heading (devuelve angulo absoluto)
+------heading (devuelve angulo absoluto)  
 ------towards list XCOR YCOR (devuelve el ángulo apra llegar a (XCOR,YCOR)
+---------------------cosas de texto dificiles
 label String (escribe el string, tengo que preprogramar texto)
 setlabelheight Int (alto de la fuente)
 setwidth Int [ancho del lapiz]
+------------- fin dificil
 to palabra comm end (si se repite reemplaza)
 to palabra :arg ... :arg comm (llamar arg con :arg) end
 setcolor Int
