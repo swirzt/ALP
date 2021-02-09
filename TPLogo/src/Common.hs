@@ -1,6 +1,6 @@
 module Common where
 
-    data List = Pos | L [Exp]
+    data List = Pos | L [Exp] deriving Show
 
     data Exp = Num Float
              | XCor | YCor
@@ -16,6 +16,8 @@ module Common where
              | Tail List
              | RTail List
              | Read
+             | List List
+        deriving Show
 
     data Boolen = Gt Exp Exp
                 | Lt Exp Exp
@@ -26,11 +28,12 @@ module Common where
                 | And Boolen Boolen
                 | Or Boolen Boolen
                 | Not Boolen
+        deriving Show
 
     data Comm = Ford Exp
               | Back Exp
-              | Right Exp
-              | Left Exp
+              | TRight Exp
+              | TLeft Exp
               | Clear | Clean
               | PUp | PDown
               | HideT | ShowT
@@ -50,3 +53,4 @@ module Common where
               | Filled Exp Comm
               | Wait Exp
               | While Comm Boolen
+        deriving Show

@@ -1,6 +1,7 @@
 {
-  module LogoPar where
-  import Common
+module LogoPar where
+import Common
+import Data.Char
 }
 
 %name logo
@@ -37,7 +38,7 @@
       print             { TokenPrnt }
       to                { TokenTo }
       end               { TokenEnd }
-      setcolor          { TokenSetCol }
+      setcolor          { TokenSetCo }
       make              { TokenMk }
       for               { TokenFor }
       if                { TokenIf }
@@ -72,6 +73,7 @@
       '['               { TokenCA }
       ']'               { TokenCC }
 
+
       '>'               { TokenMayor }
       '<'               { TokenMenor }
       '='               { TokenIgual }
@@ -98,10 +100,10 @@ Comm : fordward Exp                              { Ford $2 }
      | fd Exp                                    { Ford $2 }
      | back Exp                                  { Back $2 }
      | bk Exp                                    { Back $2 }
-     | right Exp                                 { Right $2 }
-     | rt Exp                                    { Right $2 }
-     | left Exp                                  { Left $2 }
-     | lt Exp                                    { Left $2 }
+     | right Exp                                 { TRight $2 }
+     | rt Exp                                    { TRight $2 }
+     | left Exp                                  { TLeft $2 }
+     | lt Exp                                    { TLeft $2 }
      | clearscreen                               { Clear }
      | cs                                        { Clear }
      | clean                                     { Clean }
@@ -123,7 +125,7 @@ Comm : fordward Exp                              { Ford $2 }
      | print Exp                                 { Print $2 }
      | to var Args Comm end                      { Def $2 $3 $4 }
      | setcolor Exp                              { SetCo $2 }
-     | make '"' var Exp                          { DefV $2 $3 }
+     | make '"' var Exp                          { DefV $3 $4 }
      | for '[' var Exp Exp ']' '[' Comm ']'      { For $3 $4 $5 $8 }
      | for '[' var Exp Exp Exp ']' '[' Comm ']'  { ForDelta $3 $4 $5 $6 $9 }
      | if Bool '[' Comm ']'                      { If $2 $4 }
@@ -149,6 +151,7 @@ Exp : num                  { Num $1 }
     | butlast List         { RTail $2 }
     | readword             { Read }
     | '(' Exp ')'          { $2 }
+    | List                 { List $1 }
 
 List :: { List }
 List : pos          { Pos }
@@ -176,78 +179,78 @@ Bool : Exp '>' Exp     { Gt $1 $3 }
      | '(' Bool ')'    { $2 }
 
 {
-  parseError :: [Token] -> a
-  parseError _ = error "Parse error"
+parseError :: [Token] -> a
+parseError _ = error "Parse error"
 
-  data Token = TokenFod
-             | TokenFd
-             | TokenBak 
-             | TokenBk 
-             | TokenRit 
-             | TokenRt 
-             | TokenLet 
-             | TokenLt 
-             | TokenCls 
-             | TokenCs 
-             | TokenCln 
-             | TokenPup 
-             | TokenPu 
-             | TokenPdn 
-             | TokenPd 
-             | TokenHte
-             | TokenHt 
-             | TokenSte 
-             | TokenSt 
-             | TokenHome 
-             | TokenStx 
-             | TokenSty 
-             | TokenStxy 
-             | TokenSethead 
-             | TokenSeth
-             | TokenRep 
-             | TokenPrnt 
-             | TokenTo 
-             | TokenEnd 
-             | TokenSetCo 
-             | TokenMk  
-             | TokenFor  
-             | TokenIf
-             | TokenFill  
-             | TokenFilled
-             | TokenWait 
-             | TokenWhile
-             | TokenPos 
-             | TokenList
-             | TokenXCor 
-             | TokenYCor 
-             | TokenHead 
-             | TokenTow 
-             | TokenRef 
-             | TokenSum 
-             | TokenDiff 
-             | TokenFst 
-             | TokenLst 
-             | TokenItem 
-             | TokenPick 
-             | TokenTail 
-             | TokenRTail
-             | TokenRead 
-             | TokenVar String
-             | TokenNum Float
-             | TokenStr 
-             | TokenPA 
-             | TokenPC 
-             | TokenCA 
-             | TokenCC 
-             | TokenMayor 
-             | TokenMenor 
-             | TokenIgual 
-             | TokenMaIgual
-             | TokenMeIgual
-             | TokenNoIgual
-             | TokenY
-             | TokenO
-             | TokenNo
+data Token = TokenFod
+           | TokenFd
+           | TokenBak 
+           | TokenBk 
+           | TokenRit 
+           | TokenRt 
+           | TokenLet 
+           | TokenLt 
+           | TokenCls 
+           | TokenCs 
+           | TokenCln 
+           | TokenPup 
+           | TokenPu 
+           | TokenPdn 
+           | TokenPd 
+           | TokenHte
+           | TokenHt 
+           | TokenSte 
+           | TokenSt 
+           | TokenHome 
+           | TokenStx 
+           | TokenSty 
+           | TokenStxy 
+           | TokenSethead 
+           | TokenSeth
+           | TokenRep 
+           | TokenPrnt 
+           | TokenTo 
+           | TokenEnd 
+           | TokenSetCo 
+           | TokenMk  
+           | TokenFor  
+           | TokenIf
+           | TokenFill  
+           | TokenFilled
+           | TokenWait 
+           | TokenWhile
+           | TokenPos 
+           | TokenList
+           | TokenXCor 
+           | TokenYCor 
+           | TokenHead 
+           | TokenTow 
+           | TokenRef 
+           | TokenSum 
+           | TokenDiff 
+           | TokenFst 
+           | TokenLst 
+           | TokenItem 
+           | TokenPick 
+           | TokenTail 
+           | TokenRTail
+           | TokenRead 
+           | TokenVar String
+           | TokenNum Float
+           | TokenStr 
+           | TokenPA 
+           | TokenPC 
+           | TokenCA 
+           | TokenCC 
+           | TokenMayor 
+           | TokenMenor 
+           | TokenIgual 
+           | TokenMaIgual
+           | TokenMeIgual
+           | TokenNoIgual
+           | TokenY
+           | TokenO
+           | TokenNo
 
 lexer :: String -> [Token]
 lexer [] = []
@@ -325,7 +328,7 @@ lexVar cs =
       ("butfirst",rest) -> TokenTail : lexer rest
       ("butlast",rest) -> TokenRTail : lexer rest
       ("readword",rest) -> TokenRead : lexer rest
-      ("not",rest) -> TokenNot : lexer rest
+      ("not",rest) -> TokenNo : lexer rest
       (var,rest)   -> TokenVar var : lexer rest
 
 
