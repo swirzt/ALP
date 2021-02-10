@@ -9,31 +9,21 @@ import Data.Char
 %error { parseError }
 
 %token
-      fordward          { TokenFod }
-      fd                { TokenFd }
-      back              { TokenBak }
-      bk                { TokenBk }
-      right             { TokenRit }
-      rt                { TokenRt }
-      left              { TokenLet }
-      lt                { TokenLt }
-      clearscreen       { TokenCls }
-      cs                { TokenCs }
-      clean             { TokenCln }
-      penup             { TokenPup }
-      pu                { TokenPu }
-      pendown           { TokenPdn }
-      pd                { TokenPd }
-      hideturtle        { TokenHte }
-      ht                { TokenHt }
-      showturtle        { TokenSte }
-      st                { TokenSt }
+      fordward          { TokenFd }
+      back              { TokenBk }
+      right             { TokenRt }
+      left              { TokenLt }
+      clearscreen       { TokenCs }
+      clean             { TokenCl }
+      penup             { TokenPu }
+      pendown           { TokenPd }
+      hideturtle        { TokenHt }
+      showturtle        { TokenSt }
       home              { TokenHome }
       setx              { TokenStx }
       sety              { TokenSty }
       setxy             { TokenStxy }
-      setheading        { TokenSethead }
-      seth              { TokenSeth }
+      setheading        { TokenSeth }
       repeat            { TokenRep }
       print             { TokenPrnt }
       to                { TokenTo }
@@ -97,30 +87,20 @@ CommSeq : Comm              { [$1] }
 
 Comm :: { Comm }
 Comm : fordward Exp                              { Ford $2 }
-     | fd Exp                                    { Ford $2 }
      | back Exp                                  { Back $2 }
-     | bk Exp                                    { Back $2 }
      | right Exp                                 { TRight $2 }
-     | rt Exp                                    { TRight $2 }
      | left Exp                                  { TLeft $2 }
-     | lt Exp                                    { TLeft $2 }
      | clearscreen                               { Clear }
-     | cs                                        { Clear }
      | clean                                     { Clean }
      | penup                                     { PUp }
-     | pu                                        { PUp }
      | pendown                                   { PDown }
-     | pd                                        { PDown }
      | hideturtle                                { HideT }
-     | ht                                        { HideT }
      | showturtle                                { ShowT }
-     | st                                        { ShowT }
      | home                                      { Home }
      | setx Exp                                  { SetX $2 }
      | sety Exp                                  { SetY $2 }
      | setxy Exp Exp                             { SetXY $2 $3 }
      | setheading Exp                            { SetHead $2 }
-     | seth Exp                                  { SetHead $2 }
      | repeat Exp '[' Comm ']'                   { Rep $2 $4 }
      | print Exp                                 { Print $2 }
      | to var Args Comm end                      { Def $2 $3 $4 }
@@ -182,30 +162,20 @@ Bool : Exp '>' Exp     { Gt $1 $3 }
 parseError :: [Token] -> a
 parseError _ = error "Parse error"
 
-data Token = TokenFod
-           | TokenFd
-           | TokenBak 
+data Token = TokenFd
            | TokenBk 
-           | TokenRit 
            | TokenRt 
-           | TokenLet 
            | TokenLt 
-           | TokenCls 
            | TokenCs 
-           | TokenCln 
-           | TokenPup 
-           | TokenPu 
-           | TokenPdn 
+           | TokenCl
+           | TokenPu
            | TokenPd 
-           | TokenHte
-           | TokenHt 
-           | TokenSte 
+           | TokenHt
            | TokenSt 
            | TokenHome 
            | TokenStx 
            | TokenSty 
            | TokenStxy 
-           | TokenSethead 
            | TokenSeth
            | TokenRep 
            | TokenPrnt 
@@ -276,30 +246,30 @@ lexNum cs = TokenNum (read num) : lexer rest
 
 lexVar cs =
   case span isAlpha cs of
-      ("fordward",rest) -> TokenFod : lexer rest
+      ("fordward",rest) -> TokenFd : lexer rest
       ("fd",rest) -> TokenFd : lexer rest
-      ("back",rest) -> TokenBak : lexer rest
+      ("back",rest) -> TokenBk : lexer rest
       ("bk",rest) -> TokenBk : lexer rest
-      ("right",rest) -> TokenRit : lexer rest
+      ("right",rest) -> TokenRt : lexer rest
       ("rt",rest) -> TokenRt : lexer rest
-      ("left",rest) -> TokenLet : lexer rest
+      ("left",rest) -> TokenLt : lexer rest
       ("lt",rest) -> TokenLt : lexer rest
-      ("clearscreen",rest) -> TokenCls : lexer rest
+      ("clearscreen",rest) -> TokenCs : lexer rest
       ("cs",rest) -> TokenCs : lexer rest
-      ("clean",rest) -> TokenCln : lexer rest
-      ("penup",rest) -> TokenPup : lexer rest
+      ("clean",rest) -> TokenCl : lexer rest
+      ("penup",rest) -> TokenPu : lexer rest
       ("pu",rest) -> TokenPu : lexer rest
-      ("pendown",rest) -> TokenPdn : lexer rest
+      ("pendown",rest) -> TokenPd : lexer rest
       ("pd",rest) -> TokenPd : lexer rest
-      ("hideturtle",rest) -> TokenHte : lexer rest
+      ("hideturtle",rest) -> TokenHt : lexer rest
       ("ht",rest) -> TokenHt : lexer rest
-      ("showturtle",rest) -> TokenSte : lexer rest
+      ("showturtle",rest) -> TokenSt : lexer rest
       ("st",rest) -> TokenSt : lexer rest
       ("home",rest) -> TokenHome : lexer rest
       ("setx",rest) -> TokenStx : lexer rest
       ("sety",rest) -> TokenSty : lexer rest
       ("setxy",rest) -> TokenStxy : lexer rest
-      ("setheading",rest) -> TokenSethead : lexer rest
+      ("setheading",rest) -> TokenSeth : lexer rest
       ("seth",rest) -> TokenSeth : lexer rest
       ("repeat",rest) -> TokenRep : lexer rest
       ("print",rest) -> TokenPrnt : lexer rest
