@@ -27,28 +27,31 @@ Comm ::= Comm Comm
        | wait Exp
        | do.while [Comm] Bool
 
+Exp ::= List
+      | Value
+
 List ::= pos
-       | list SecExp
-       | ( List )
+       | list Exp Exp
+       | ( list SecExp )
 
 SecExp ::= SecExp Exp
          | Exp
 
-Exp ::= Int
-      | xcor | ycor
-      | heading
-      | towards List
-      | :String
-      | sum Exp Exp
-      | difference Exp Exp
-      | first List
-      | last List
-      | item Exp List
-      | pick List
-      | butfirst List
-      | butlast List
-      | readword
-      | ( Exp )
+Value ::= Int
+        | xcor | ycor
+        | heading
+        | towards List
+        | :String
+        | sum Exp Exp
+        | difference Exp Exp
+        | first List
+        | last List
+        | item Exp List
+        | pick List
+        | butfirst List
+        | butlast List
+        | readword
+        | ( Value )
 
 Bool ::= Exp > Exp
        | Exp < Exp

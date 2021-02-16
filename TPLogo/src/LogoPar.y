@@ -39,6 +39,7 @@ import Data.Char
       
       pos               { TokenPos }
       list              { TokenList }
+      tuple             { TokenTup }
       
       xcor              { TokenXCor }
       ycor              { TokenYCor }
@@ -73,10 +74,18 @@ import Data.Char
       '&&'              { TokenY }
       '||'              { TokenO }
       not               { TokenNo }
+      '*'               { TokenMul }
+      '/'               { TokenDiv }
+      '+'               { TokenSSum }
+      '-'               { TokenSDiff }
 
 %left '||'
 %left '&&'
 %nonassoc not
+%nonassoc tuple
+%nonassoc sum difference
+%left '+' '-'
+%left '*' '/'
 
 
 %%
@@ -130,17 +139,25 @@ Exp : num                  { Num $1 }
     | butfirst List        { Tail $2 }
     | butlast List         { RTail $2 }
     | readword             { Read }
+    | Exp '+' Exp          { Sum $1 $3 }
+    | Exp '-' Exp          { Difference $1 $3 }
+    | Exp '/' Exp          { Divide $1 $3 }
+    | Exp '*' Exp          { Multiply $1 $3 }
     | '(' Exp ')'          { $2 }
-    | List                 { List $1 }
 
 List :: { List }
-List : pos          { Pos }
-     | list SecExp  { L $2 }
-     | '(' List ')' { $2 }
+List : pos                { Pos }
+     | tuple Exp Exp      { L [Left $2, Left $3] }
+     | tuple List Exp     { L [Right $2, Left $3] }
+     | tuple Exp List     { L [Left $2, Right $3] }
+     | tuple List List    { L [Right $2, Right $3] }
+     | '(' list Seq ')'   { L $3 }
 
-SecExp :: { [Exp] }
-SecExp : Exp          { [$1] }
-       | Exp SecExp   { $1 : $2 }
+Seq :: { [Either Exp List] }
+Seq : Exp          { [Left $1] }
+    | List         { [Right $1] }
+    | Exp Seq      { Left $1 : $2 }
+    | List Seq     { Right $1 : $2 }
 
 Args :: { [String] }
 Args : ':' var        { [$2] }
@@ -191,6 +208,7 @@ data Token = TokenFd
            | TokenWhile
            | TokenPos 
            | TokenList
+           | TokenTup
            | TokenXCor 
            | TokenYCor 
            | TokenHead 
@@ -221,6 +239,10 @@ data Token = TokenFd
            | TokenY
            | TokenO
            | TokenNo
+           | TokenMul
+           | TokenDiv
+           | TokenSSum
+           | TokenSDiff
 
 lexer :: String -> [Token]
 lexer [] = []
@@ -236,10 +258,16 @@ lexer ('!':'=':cs) = TokenNoIgual : lexer cs
 lexer ('>':cs) = TokenMayor : lexer cs
 lexer ('<':cs) = TokenMenor : lexer cs
 lexer ('=':cs) = TokenIgual : lexer cs
-lexer ('(':cs) = TokenPA : lexer cs
+lexer ('(':cs) = case lexer cs of
+                    TokenTup:xs -> TokenPA : TokenList : xs
+                    xs -> TokenPA : xs
 lexer (')':cs) = TokenPC : lexer cs
 lexer ('[':cs) = TokenCA : lexer cs
 lexer (']':cs) = TokenCC : lexer cs
+lexer ('*':cs) = TokenMul : lexer cs
+lexer ('/':cs) = TokenDiv : lexer cs
+lexer ('+':cs) = TokenSSum : lexer cs
+lexer ('-':cs) = TokenSDiff : lexer cs
 
 lexNum cs = TokenNum (read num) : lexer rest
       where (num,rest) = span (\d -> isDigit d || d == '.') cs
@@ -284,7 +312,7 @@ lexVar cs =
       ("wait",rest) -> TokenWait : lexer rest
       ("do.while",rest) -> TokenWhile : lexer rest
       ("pos",rest) -> TokenPos : lexer rest
-      ("list",rest) -> TokenList : lexer rest
+      ("list",rest) -> TokenTup : lexer rest
       ("xcor",rest) -> TokenXCor : lexer rest
       ("ycor",rest) -> TokenYCor : lexer rest
       ("heading",rest) -> TokenHead : lexer rest

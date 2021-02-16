@@ -1,6 +1,6 @@
 module Common where
 
-    data List = Pos | L [Exp] deriving Show
+    data List = Pos | L [Either Exp List] deriving Show
 
     data Exp = Num Float
              | XCor | YCor
@@ -9,6 +9,8 @@ module Common where
              | Var String
              | Sum Exp Exp
              | Difference Exp Exp
+             | Multiply Exp Exp
+             | Divide Exp Exp
              | First List
              | Last List
              | Item Exp List
@@ -16,7 +18,6 @@ module Common where
              | Tail List
              | RTail List
              | Read
-             | List List
         deriving Show
 
     data Boolen = Gt Exp Exp
