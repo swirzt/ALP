@@ -1,25 +1,27 @@
+{-# LANGUAGE GADTs #-}
 module Common where
 
-    data List = Pos | L [Either Exp List] deriving Show
+    data List = Pos | L [Either Exp List]
 
-    data Exp = Num Float
-             | XCor | YCor
-             | Heading
-             | Towards List
-             | Var String
-             | Sum Exp Exp
-             | Difference Exp Exp
-             | Multiply Exp Exp
-             | Divide Exp Exp
-             | First List
-             | Last List
-             | Item Exp List
-             | RandItem List
-             | Tail List
-             | RTail List
-             | Read
-        deriving Show
-
+    data Exp where
+        Num ::  Num n => n -> Exp
+        XCor :: Exp
+        YCor :: Exp
+        Heading :: Exp
+        Towards :: List -> Exp
+        Var :: String -> Exp
+        Sum :: Exp -> Exp -> Exp
+        Difference :: Exp -> Exp -> Exp
+        Multiply :: Exp -> Exp -> Exp
+        Divide :: Exp -> Exp -> Exp
+        First :: List -> Exp
+        Last :: List -> Exp
+        Item :: Exp -> List -> Exp
+        RandItem :: List -> Exp
+        Tail :: List -> Exp
+        RTail :: List -> Exp
+        Read :: Exp
+    
     data Boolen = Gt Exp Exp
                 | Lt Exp Exp
                 | Eq Exp Exp
@@ -29,7 +31,6 @@ module Common where
                 | And Boolen Boolen
                 | Or Boolen Boolen
                 | Not Boolen
-        deriving Show
 
     data Comm = Ford Exp
               | Back Exp
@@ -54,4 +55,3 @@ module Common where
               | Filled Exp Comm
               | Wait Exp
               | While Comm Boolen
-        deriving Show

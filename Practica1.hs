@@ -105,12 +105,7 @@ hask :: Parser Hasktype
 hask = sepBy base (symbol "->")
 
 base :: Parser Basetype
-base = do i <- string "Int"
-          return DInt
-          <|> do c <- string "Char"
-                 return DChar
-                 <|> do f <- string "Float"
-                        return DFloat
+base = (string "Int" >> return DInt) <|> (string "Char" >> return DChar) <|> (string "Float" >> return DFloat)
 
 toHaskType :: String -> Hasktype
 toHaskType xs = fst (head (parse hask xs))

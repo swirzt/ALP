@@ -6,6 +6,8 @@ import System.Environment --getArgs
 import Graphics.Gloss -- GUI
 import Text.Read -- readMaybe
 
+data State = S Display Color [Picture] Int Int Float 
+
 defaultHW :: Int
 defaultHW = 300
 
@@ -24,4 +26,4 @@ main = do
 
 loop :: Display -> IO ()
 --loop screen = do display screen 
-loop = undefined
+loop d = display d white $ pictures [circle 80,circle 150]
