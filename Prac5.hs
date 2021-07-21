@@ -1,25 +1,26 @@
 import Prelude hiding (mapM)
+
 -- /* Ejercicio 1 *\
-newtype Pair a = P (a,a) deriving Show
+newtype Pair a = P (a, a) deriving (Show)
 
 instance Functor Pair where
-    fmap f (P (a,b)) = P (f a, f b)
+  fmap f (P (a, b)) = P (f a, f b)
 
-data Tree a = Empty | Branch a (Tree a) (Tree a) deriving Show
+data Tree a = Empty | Branch a (Tree a) (Tree a) deriving (Show)
 
 instance Functor Tree where
-    fmap f Empty = Empty
-    fmap f (Branch x l r) = Branch (f x) (fmap f l) (fmap f r)
+  fmap f Empty = Empty
+  fmap f (Branch x l r) = Branch (f x) (fmap f l) (fmap f r)
 
-data GenTree a = Gen a [GenTree a] deriving Show
+data GenTree a = Gen a [GenTree a] deriving (Show)
 
 instance Functor GenTree where
-    fmap f (Gen x xs) = Gen (f x) (map (fmap f) xs)
+  fmap f (Gen x xs) = Gen (f x) (map (fmap f) xs)
 
 newtype Cont a = C ((a -> Int) -> Int)
 
 instance Functor Cont where
-    fmap f (C g) = C (\k -> g (k . f))
+  fmap f (C g) = C (\k -> g (k . f))
 
 appCont :: Cont a -> (a -> Int) -> Int
 appCont (C g) = g
@@ -44,7 +45,6 @@ appCont (C g) = g
 -- Sum x (Mul y z) >>== h = Sum (Var 1) (Res (Var 2) (Var 3))
 
 -- No hay solución de h
-
 
 -- /* Ejercicio 4 *\
 -- data BT a = IfBoton (Bool -> BT a)
@@ -91,7 +91,7 @@ appCont (C g) = g
 -- (>>=) :: ES a -> (a -> ES b) -> ES b
 -- Read k >>= v = Read (\c -> k c >>= v)
 -- Write c t >>= v = Write c (t >>= v)
--- Var k >>= v = v k 
+-- Var k >>= v = v k
 
 -- writeChar :: Char -> ES ()
 -- writeChar c = Write c (Var ())
@@ -117,21 +117,23 @@ appCont (C g) = g
 --     fmap f t = t >>= (return.f)
 
 -- fmap id t =(fmap)= t >>= return.id = t >>= return =(monad.2)= t =(id)= id t
--- fmap g (fmap f t) = fmap g (t >>= return.f) = (t >>= return.f) >>= return.g =(monad.3)= 
+-- fmap g (fmap f t) = fmap g (t >>= return.f) = (t >>= return.f) >>= return.g =(monad.3)=
 -- t >>= (\x -> return.f x >>= g)
 
 -- /* Ejercicio 9 *\
 
 mapM :: Monad m => (a -> m b) -> [a] -> m [b]
 mapM f [] = return []
-mapM f (x:xs) = do y <- f x
-                   ys <- mapM f xs
-                   return (y:ys)
+mapM f (x : xs) = do
+  y <- f x
+  ys <- mapM f xs
+  return (y : ys)
+
 -- mapM f (x:xs) = f x >>= \y -> mapM f xs >>= \ys -> return $ y : ys
 
 foldM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
 foldM _ e [] = return e
-foldM f e (x:xs) = f e x >>= \r -> foldM f r xs
+foldM f e (x : xs) = f e x >>= \r -> foldM f r xs
 
 -- /* Ejercicio 10 *\
 -- (m >>= \x -> h x) >>= \y -> f y >>= \z -> return (g z)
@@ -150,7 +152,7 @@ foldM f e (x:xs) = f e x >>= \r -> foldM f r xs
 --                 return (k z)
 
 -- (y >>= \z -> f z >>= \w -> return (g w z)) >>= \x -> h x 3 >>= \y -> if y then return 7
-                                                                          else h x 2 >>= \z -> return (k z)
+-- else h x 2 >>= \z -> return (k z)
 -- /* Ejercicio 12 *\
 -- monad.1
 -- do y <- return x

@@ -5,7 +5,7 @@
 -- -- > runList xs cons nil == xs
 -- -- > runList (fromList xs) f z == foldr f z xs
 -- -- > foldr f z (toList xs) == runList xs f z
--- newtype List a = 
+-- newtype List a =
 --     List { runList :: forall r. (a -> r -> r) -> r -> r }
 
 -- -- | Make a 'List' out of a regular list.
@@ -32,24 +32,30 @@
 -- nil = {- fromList [] = List $ \k z -> foldr k z []
 --                   = -} List $ \k z -> z
 
--- singleton x = {- cons x nil = List $ \k z -> k x (runList nil k z) 
+-- singleton x = {- cons x nil = List $ \k z -> k x (runList nil k z)
 --             = -} List $ \k z -> k x z
 
 -- snoc xs x = {- append xs $ singleton x
---           = List $ \k z -> runList xs k (runList (singleton x) k z) 
+--           = List $ \k z -> runList xs k (runList (singleton x) k z)
 --           = -} List $ \k z -> runList xs k (k x z)
-
 
 -- null :: [a] -> Bool
 -- null [] = True
 -- null _  = False
 
 insert :: (a -> a -> Bool) -> [a] -> a -> [a]
-insert f xs x = foldr (\y ys  -> if null ys
-                                    then if f y x
-                                          then y : x : ys
-                                          else y : ys
-                                    else if f y x && f x (head ys)
-                                          then y : x : ys
-                                          else y : ys)
-                        [] xs
+insert f xs x =
+  foldr
+    ( \y ys ->
+        if null ys
+          then
+            if f y x
+              then y : x : ys
+              else y : ys
+          else
+            if f y x && f x (head ys)
+              then y : x : ys
+              else y : ys
+    )
+    []
+    xs

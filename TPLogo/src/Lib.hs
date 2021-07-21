@@ -1,11 +1,12 @@
 module Lib
-    ( someFunc
-    , parser
-    ) where
+  ( someFunc,
+    parser,
+  )
+where
 
+import Common
 import Graphics.Gloss
 import LogoPar
-import Common
 
 parser :: String -> [Comm]
 parser = logo . lexer

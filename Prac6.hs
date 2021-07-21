@@ -1,19 +1,19 @@
-import Control.Applicative(Applicative(..))
-import Control.Monad(liftM,ap)
+import Control.Applicative (Applicative (..))
+import Control.Monad (ap, liftM)
 
 -- /* Ejercicio 1 *\
-newtype Id a = Id a deriving Show
+newtype Id a = Id a deriving (Show)
 
 instance Functor Id where
-    fmap = liftM
+  fmap = liftM
 
 instance Applicative Id where
-    pure = return
-    (<*>) = ap
+  pure = return
+  (<*>) = ap
 
 instance Monad Id where
-    return = Id
-    Id x >>= f = f x
+  return = Id
+  Id x >>= f = f x
 
 {-
 monad.1
@@ -40,7 +40,7 @@ monad.1
 return x >>= f =(def return)= Just x >>= f =(def >>=)= f x
 
 monad.2
-t >>= return 
+t >>= return
 -- t = Just x
 Just x >>= return =(def >>=)= return x =(def return)= Just x =(inicio)= t
 -- t = Nothing
@@ -69,7 +69,7 @@ Nothing >>= (\p -> f p >>= g) =(def >>=)= Nothing
 --     xs >>= f = [y | x <- xs , y <- f x]
 
 (>>-) :: [a] -> (a -> [b]) -> [b]
-(>>-) xs f = [y | x <- xs , y <- f x]
+(>>-) xs f = [y | x <- xs, y <- f x]
 
 {-
 monad.1
@@ -90,18 +90,18 @@ t >>= (\x -> f x >>= g) =(def >>=)= [y | z <- t, y <- f z >>= g] =(def >>=)=
 -}
 
 -- /* Ejercicio 3 *\
-newtype State s a = St {runState :: s -> (a,s)}
+newtype State s a = St {runState :: s -> (a, s)}
 
 instance Functor (State s) where
-    fmap = liftM
+  fmap = liftM
 
 instance Applicative (State s) where
-    pure = return
-    (<*>) = ap
+  pure = return
+  (<*>) = ap
 
 instance Monad (State s) where
-    return x = St (\s -> (x,s))
-    (St h) >>= f = St (\s -> let (x,s') = h s in runState (f x) s)
+  return x = St (\s -> (x, s))
+  (St h) >>= f = St (\s -> let (x, s') = h s in runState (f x) s)
 
 {-
 monad.1
@@ -171,34 +171,38 @@ h = (\(x,y) -> runState (g x) y)
 -}
 
 set :: s -> State s ()
-set e = St (\_ -> ((),e))
+set e = St (\_ -> ((), e))
 
 get :: State s s
-get = St (\s -> (s,s))
+get = St (\s -> (s, s))
 
 -- /* Ejercicio 4 *\
-data Tree a = Leaf a | Branch (Tree a) (Tree a) deriving Show
+data Tree a = Leaf a | Branch (Tree a) (Tree a) deriving (Show)
 
 instance Functor Tree where
-    fmap f (Leaf a) = Leaf (f a)
-    fmap f (Branch l r) = Branch (fmap f l) (fmap f r)
+  fmap f (Leaf a) = Leaf (f a)
+  fmap f (Branch l r) = Branch (fmap f l) (fmap f r)
 
 numTree :: Tree a -> Tree Int
 numTree t = fst (mapTreeNro update t 0)
-    where update a n = (n, n + 1)
+  where
+    update a n = (n, n + 1)
 
 mapTreeNro :: (a -> Int -> (b, Int)) -> Tree a -> Int -> (Tree b, Int)
 mapTreeNro f (Leaf x) n = let (x', y) = f x n in (Leaf x', y)
-mapTreeNro f (Branch l r) n = let (l',m) = mapTreeNro f l n
-                                  (r',p) = mapTreeNro f r m
-                                  in (Branch l' r', p)
+mapTreeNro f (Branch l r) n =
+  let (l', m) = mapTreeNro f l n
+      (r', p) = mapTreeNro f r m
+   in (Branch l' r', p)
 
 mapTreeM :: (a -> State s b) -> Tree a -> State s (Tree b)
-mapTreeM f (Leaf x) = do y <- f x
-                         return (Leaf y)
-mapTreeM f (Branch l r) = do l' <- mapTreeM f l
-                             r' <- mapTreeM f r
-                             return (Branch l' r')
+mapTreeM f (Leaf x) = do
+  y <- f x
+  return (Leaf y)
+mapTreeM f (Branch l r) = do
+  l' <- mapTreeM f l
+  r' <- mapTreeM f r
+  return (Branch l' r')
 
 -- /* Ejercicio 5 *\
 -- class Monoid m where
@@ -211,18 +215,18 @@ mempty = ""
 mappend = (++)
 -}
 
-newtype Output w a = Out (a,w) deriving Show
+newtype Output w a = Out (a, w) deriving (Show)
 
 instance Monoid a => Functor (Output a) where
-    fmap = liftM
+  fmap = liftM
 
 instance Monoid a => Applicative (Output a) where
-    pure = return
-    (<*>) = ap
+  pure = return
+  (<*>) = ap
 
 instance Monoid a => Monad (Output a) where
-    return x = Out (x, mempty)
-    Out (x, n) >>= f = let Out (y,m) = f x in Out (y,mappend n m)
+  return x = Out (x, mempty)
+  Out (x, n) >>= f = let Out (y, m) = f x in Out (y, mappend n m)
 
 -- instance Monoid a => Monad (Output a) where
 --     return x = Out (x, mempty)
@@ -254,33 +258,40 @@ let (y,m) = f x in let (y',o) = g y in Output (y', mappend (mappend n m) o)
 -}
 
 write :: Monoid w => w -> Output w ()
-write w = Out ((),w)
+write w = Out ((), w)
 
-data Exp = Const Int
-          | Plus Exp Exp
-          | Div Exp Exp
-          deriving Show
+data Exp
+  = Const Int
+  | Plus Exp Exp
+  | Div Exp Exp
+  deriving (Show)
 
 termino :: Exp -> Int -> String
 termino e n = "El termino " ++ show e ++ " tiene valor " ++ show n ++ "\n"
 
 evalM :: Exp -> Output String Int
-evalM c@(Const n) = do write (termino c n)
-                       return n
-evalM c@(Plus t u) = do m <- evalM t
-                        n <- evalM u
-                        let mn = m + n
-                        write (termino c mn)
-                        return mn
-evalM c@(Div t u) = do m <- evalM t
-                       n <- evalM u
-                       let mn = div m n
-                       write (termino c mn)
-                       return mn
+evalM c@(Const n) = do
+  write (termino c n)
+  return n
+evalM c@(Plus t u) = do
+  m <- evalM t
+  n <- evalM u
+  let mn = m + n
+  write (termino c mn)
+  return mn
+evalM c@(Div t u) = do
+  m <- evalM t
+  n <- evalM u
+  let mn = div m n
+  write (termino c mn)
+  return mn
 
 eval :: Exp -> IO ()
-eval e = let Out (n,s) = evalM e in do putStr s
-                                       print n
+eval e =
+  let Out (n, s) = evalM e
+   in do
+        putStr s
+        print n
 
 -- /* Ejercicio 6 *\
 -- M a >> M b = M a >>= (\_ -> M b)
@@ -289,34 +300,38 @@ eval e = let Out (n,s) = evalM e in do putStr s
 -- /* Ejercicio 7 *\
 sequences :: Monad m => [m a] -> m [a]
 sequences [] = return []
-sequences (x:xs) = do y <- x
-                      ys <- sequences xs
-                      return (y : ys)
+sequences (x : xs) = do
+  y <- x
+  ys <- sequences xs
+  return (y : ys)
 
 liftM1 :: Monad m => (a -> b) -> m a -> m b
-liftM1 f mx = do x <- mx
-                 return (f x)
+liftM1 f mx = do
+  x <- mx
+  return (f x)
 
 liftM2 :: Monad m => (a -> b -> c) -> m a -> m b -> m c
-liftM2 f mx my = do x <- mx
-                    y <- my
-                    return (f x y)
+liftM2 f mx my = do
+  x <- mx
+  y <- my
+  return (f x y)
 
 sequencef :: Monad m => [m a] -> m [a]
 sequencef = foldr (liftM2 (:)) (return [])
+
 -- sequencef [] = return []
 -- sequencef (x:xs) = liftM2 (:) x (sequencef ys)
 
-data Error er a = Raise er | Return a deriving Show
+data Error er a = Raise er | Return a deriving (Show)
 
 instance Functor (Error er) where
-    fmap = liftM
+  fmap = liftM
 
 instance Applicative (Error er) where
-    pure = return
-    (<*>) = ap
+  pure = return
+  (<*>) = ap
 
-instance Monad (Error er) where 
+instance Monad (Error er) where
   return = Return
   Return x >>= f = f x
   Raise e >>= f = Raise e
@@ -362,61 +377,68 @@ throwe = Raise
 
 headE :: [a] -> Error String a
 headE [] = throwe "Se intento hacer head a la lista vacia"
-headE (x:_) = return x
+headE (x : _) = return x
 
 tailE :: [a] -> Error String [a]
 tailE [] = throwe "Se intento hacer tail a la lista vacia"
-tailE (_:xs) = return xs
+tailE (_ : xs) = return xs
 
 push :: a -> [a] -> Error String [a]
-push x xs = return (x:xs)
+push x xs = return (x : xs)
 
 pop :: [a] -> Error String [a]
 pop [] = throwe "Se intento hacer pop a la pila vacia"
-pop (_:xs) = return xs
+pop (_ : xs) = return xs
 
 -- /* Ejercicio 9 *\
 data T = Con Int | Divv T T
 
-newtype M s e a = M {runM :: s -> Error e (a,s)}
+newtype M s e a = M {runM :: s -> Error e (a, s)}
 
 evalT :: T -> M Int String Int
 evalT (Con n) = return n
-evalT (Divv t1 t2) = do v1 <- evalT t1
-                        v2 <- evalT t2
-                        if v2 == 0 then raise "Error: Division por cero."
-                                   else do modify (+1)
-                                           return (div v1 v2)
+evalT (Divv t1 t2) = do
+  v1 <- evalT t1
+  v2 <- evalT t2
+  if v2 == 0
+    then raise "Error: Division por cero."
+    else do
+      modify (+ 1)
+      return (div v1 v2)
 
-doEval :: T -> Error String (Int,Int)
+doEval :: T -> Error String (Int, Int)
 doEval t = runM (evalT t) 0
 
 instance Functor (M s e) where
-    fmap = liftM
+  fmap = liftM
 
 instance Applicative (M s e) where
-    pure = return
-    (<*>) = ap
+  pure = return
+  (<*>) = ap
 
 instance Monad (M s e) where
-  return x = M (\s -> return (x,s))
-  M h >>= f = M (\s -> case h s of
-                        Raise ss -> Raise ss
-                        Return (x,n) -> case runM (f x) n of
-                                          Raise s2 -> Raise s2
-                                          Return (y,m) -> return (y,m))
+  return x = M (\s -> return (x, s))
+  M h >>= f =
+    M
+      ( \s -> case h s of
+          Raise ss -> Raise ss
+          Return (x, n) -> case runM (f x) n of
+            Raise s2 -> Raise s2
+            Return (y, m) -> return (y, m)
+      )
 
 raise :: String -> M s String a
 raise ss = M (\_ -> throwe ss)
 
 modify :: (s -> s) -> M s e ()
-modify f = M (\s -> return ((),f s))
+modify f = M (\s -> return ((), f s))
 
-evalNOM :: T -> (Int -> (Int,Int))
-evalNOM (Con n) = \i -> (n,i)
-evalNOM (Divv t1 t2) = \i -> let (n,u) = evalNOM t1 i
-                                 (m,v) = evalNOM t2 u
-                                 in (div n m, v + 1)
+evalNOM :: T -> (Int -> (Int, Int))
+evalNOM (Con n) = \i -> (n, i)
+evalNOM (Divv t1 t2) = \i ->
+  let (n, u) = evalNOM t1 i
+      (m, v) = evalNOM t2 u
+   in (div n m, v + 1)
 
 -- /* Ejercicio 10 *\
 newtype Cont r a = Cont ((a -> r) -> r)
@@ -425,14 +447,15 @@ runCont :: Cont r a -> ((a -> r) -> r)
 runCont (Cont h) = h
 
 instance Functor (Cont r) where
-    fmap = liftM
+  fmap = liftM
 
 instance Applicative (Cont r) where
-    pure = return
-    (<*>) = ap
+  pure = return
+  (<*>) = ap
 
 instance Monad (Cont r) where
   return x = Cont (\f -> f x)
+
   -- Cont ((a -> r) -> r) -> (a -> Cont ((b -> r) -> r)) -> Cont ((b -> r) -> r)
   Cont h >>= f = Cont (\g -> h (\x -> runCont (f x) g))
 
@@ -494,19 +517,23 @@ Cont h >>= (\c -> f c >>= g)
 newtype Mk m a = Mk (m (Maybe a))
 
 instance Monad m => Functor (Mk m) where
-    fmap = liftM
+  fmap = liftM
 
 instance Monad m => Applicative (Mk m) where
-    pure = return
-    (<*>) = ap
+  pure = return
+  (<*>) = ap
 
 instance Monad m => Monad (Mk m) where
   return x = Mk $ return $ return x
--- Mk (m (Maybe a)) -> (a -> Mk (m (Maybe b))) -> Mk (m (Maybe b))
--- Just . f :: a -> Maybe (Mk m b)
-  Mk ma >>= f = Mk (ma >>= \x -> case x >>= Just . f of
-                                    Nothing -> return Nothing
-                                    Just (Mk sd) -> sd)
+
+  -- Mk (m (Maybe a)) -> (a -> Mk (m (Maybe b))) -> Mk (m (Maybe b))
+  -- Just . f :: a -> Maybe (Mk m b)
+  Mk ma >>= f =
+    Mk
+      ( ma >>= \x -> case x >>= Just . f of
+          Nothing -> return Nothing
+          Just (Mk sd) -> sd
+      )
 
 {-
 monad.1
@@ -589,54 +616,60 @@ monad.3
 throw :: Monad m => Mk m a
 throw = Mk $ return Nothing
 
-newtype StInt a = StI (Int -> (a,Int))
+newtype StInt a = StI (Int -> (a, Int))
+
 type N a = Mk StInt a
 
-runStInt :: StInt a -> (Int -> (a,Int))
+runStInt :: StInt a -> (Int -> (a, Int))
 runStInt (StI h) = h
 
 instance Functor StInt where
-    fmap = liftM
+  fmap = liftM
 
 instance Applicative StInt where
-    pure = return
-    (<*>) = ap
+  pure = return
+  (<*>) = ap
 
 instance Monad StInt where
-  return x = StI (\s -> (x,s))
-  StI h >>= f = StI (\s -> let (n,s') = h s in runStInt (f n) s')
+  return x = StI (\s -> (x, s))
+  StI h >>= f = StI (\s -> let (n, s') = h s in runStInt (f n) s')
 
 getN :: N Int
-getN = Mk (StI (\s -> (return s,s)))
+getN = Mk (StI (\s -> (return s, s)))
 
 put :: Int -> N ()
-put n = Mk (StI (\_ -> (return (),n)))
+put n = Mk (StI (\_ -> (return (), n)))
 
-data Expr = Var
-          | Cons Int
-          | Let Expr Expr
-          | Add Expr Expr
-          | Divi Expr Expr
-          deriving Show
+data Expr
+  = Var
+  | Cons Int
+  | Let Expr Expr
+  | Add Expr Expr
+  | Divi Expr Expr
+  deriving (Show)
 
 evalExpr :: Expr -> N Int
 evalExpr Var = getN
 evalExpr (Cons n) = return n
-evalExpr (Let t1 t2) = do v1 <- evalExpr t1
-                          put v1
-                          evalExpr t2
-evalExpr (Add t1 t2) = do v1 <- evalExpr t1
-                          v2 <- evalExpr t2
-                          return (v1 + v2)
-evalExpr (Divi t1 t2) = do v1 <- evalExpr t1
-                           v2 <- evalExpr t2
-                           if v2 == 0 then throw
-                                      else return (div v1 v2)
+evalExpr (Let t1 t2) = do
+  v1 <- evalExpr t1
+  put v1
+  evalExpr t2
+evalExpr (Add t1 t2) = do
+  v1 <- evalExpr t1
+  v2 <- evalExpr t2
+  return (v1 + v2)
+evalExpr (Divi t1 t2) = do
+  v1 <- evalExpr t1
+  v2 <- evalExpr t2
+  if v2 == 0
+    then throw
+    else return (div v1 v2)
 
 runMk :: Mk m a -> m (Maybe a)
 runMk (Mk s) = s
 
-runN :: N a -> (Int -> (Maybe a,Int))
+runN :: N a -> (Int -> (Maybe a, Int))
 runN n = runStInt $ runMk n
 
 retEval :: Expr -> Maybe Int
