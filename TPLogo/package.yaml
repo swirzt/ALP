@@ -1,10 +1,10 @@
 name:                TPLogo
 version:             0.1.0.0
-github:              "githubuser/TPLogo"
+github:              "swirzt/ALP/TPLogo"
 license:             BSD3
 author:              "Santiago Wirzt"
-maintainer:          "example@example.com"
-copyright:           "2021 Author name here"
+maintainer:          "swirzt@gmail.com"
+copyright:           "2021 Santiago Wirzt"
 
 extra-source-files:
 - README.md
@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - gloss
 - array
+- containers
 
 library:
   source-dirs: src

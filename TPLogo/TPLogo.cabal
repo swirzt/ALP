@@ -1,17 +1,17 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.3.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 
 name:           TPLogo
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/TPLogo#readme>
-homepage:       https://github.com/githubuser/TPLogo#readme
-bug-reports:    https://github.com/githubuser/TPLogo/issues
+homepage:       https://github.com/swirzt/ALP#readme
+bug-reports:    https://github.com/swirzt/ALP/issues
 author:         Santiago Wirzt
-maintainer:     example@example.com
-copyright:      2021 Author name here
+maintainer:     swirzt@gmail.com
+copyright:      2021 Santiago Wirzt
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -21,13 +21,16 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/TPLogo
+  location: https://github.com/swirzt/ALP
+  subdir: TPLogo
 
 library
   exposed-modules:
       Common
+      GlobalEnv
       Lib
       LogoPar
+      MonadLogo
   other-modules:
       Paths_TPLogo
   hs-source-dirs:
@@ -35,6 +38,7 @@ library
   build-depends:
       array
     , base >=4.7 && <5
+    , containers
     , gloss
   default-language: Haskell2010
 
@@ -49,6 +53,7 @@ executable TPLogo-exe
       TPLogo
     , array
     , base >=4.7 && <5
+    , containers
     , gloss
   default-language: Haskell2010
 
@@ -64,5 +69,6 @@ test-suite TPLogo-test
       TPLogo
     , array
     , base >=4.7 && <5
+    , containers
     , gloss
   default-language: Haskell2010
