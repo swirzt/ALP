@@ -24,6 +24,8 @@ dependencies:
 - gloss
 - array
 - containers
+- random >= 1.2.1
+- mtl
 
 library:
   source-dirs: src

@@ -145,19 +145,18 @@ Exp : num                  { Num $1 }
     | Exp '*' Exp          { Multiply $1 $3 }
     | '(' Exp ')'          { $2 }
 
+EL :: { Either List Exp }
+EL : Exp                  { Right $1 }
+   | List                 { Left $1 }
+
 List :: { List }
 List : pos                { Pos }
-     | tuple Exp Exp      { L [Left $2, Left $3] }
-     | tuple List Exp     { L [Right $2, Left $3] }
-     | tuple Exp List     { L [Left $2, Right $3] }
-     | tuple List List    { L [Right $2, Right $3] }
+     | tuple EL EL        { L [$2, $3] }
      | '(' list Seq ')'   { L $3 }
 
-Seq :: { [Either Exp List] }
-Seq : Exp          { [Left $1] }
-    | List         { [Right $1] }
-    | Exp Seq      { Left $1 : $2 }
-    | List Seq     { Right $1 : $2 }
+Seq :: { [Either List Exp] }
+Seq : EL              { [$1] }
+    | EL Seq          { $1 : $2 }
 
 Args :: { [String] }
 Args : ':' var        { [$2] }

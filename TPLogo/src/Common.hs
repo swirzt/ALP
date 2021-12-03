@@ -2,10 +2,12 @@
 
 module Common where
 
-data List = Pos | L [Either Exp List]
+import Graphics.Gloss
 
+data List = Pos | L [Either List Exp]
+ 
 data Exp where
-  Num :: Num n => n -> Exp
+  Num :: Float -> Exp
   XCor :: Exp
   YCor :: Exp
   Heading :: Exp
@@ -62,3 +64,22 @@ data Comm
   | Filled Exp Comm
   | Wait Exp
   | While Comm Boolen
+
+rect :: Float -> Float -> Picture
+rect x y = polygon $ rectanglePath x y
+
+-- Esta tortuga mira por defecto para la derecha ya que es lo que le corresponde al angulo 0
+tortuga :: Picture
+tortuga =
+  color green $
+    pictures
+      [ rect 40 30, -- cuerpo tortuga
+        translate 24 0 $ rect 8 7, -- cabeza
+        translate 15 18 $ rect 6 6, -- pata delantera derecha
+        translate (-15) 18 $ rect 6 6, -- pata delantera izquierda
+        translate 15 (-18) $ rect 6 6, -- pata trasera derecha
+        translate (-15) (-18) $ rect 6 6 -- pata trasera izquierda
+      ]
+
+getTortu :: Float -> Float -> Float -> Picture
+getTortu x y n = translate x y $ rotate n tortuga
