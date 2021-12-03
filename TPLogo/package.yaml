@@ -26,6 +26,8 @@ dependencies:
 - containers
 - random >= 1.2.1
 - mtl
+- haskeline
+- exceptions
 
 library:
   source-dirs: src

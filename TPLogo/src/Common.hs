@@ -4,7 +4,7 @@ module Common where
 
 import Graphics.Gloss
 
-data List = Pos | L [Either List Exp]
+data List = Pos | L [Either List Exp] deriving Show
  
 data Exp where
   Num :: Float -> Exp
@@ -24,6 +24,7 @@ data Exp where
   Tail :: List -> Exp
   RTail :: List -> Exp
   Read :: Exp
+  deriving Show
 
 data Boolen
   = Gt Exp Exp
@@ -35,6 +36,7 @@ data Boolen
   | And Boolen Boolen
   | Or Boolen Boolen
   | Not Boolen
+  deriving Show
 
 data Comm
   = Ford Exp
@@ -64,6 +66,7 @@ data Comm
   | Filled Exp Comm
   | Wait Exp
   | While Comm Boolen
+  deriving Show
 
 rect :: Float -> Float -> Picture
 rect x y = polygon $ rectanglePath x y

@@ -135,12 +135,19 @@ getComm str = do comm <- getData comms
                       Nothing -> failLogo ("Comando: " ++ str ++ ", no está definido, no se puede acceder.")
                       Just c -> return c
 
+catchErrors :: MonadLogo m => m a -> m (Maybe a)
+catchErrors c =
+    catchError
+        (Just <$> c)
+        (\e ->
+            liftIO $
+                hPutStrLn stderr (Prelude.show e)
+                    >> return Nothing)
+
+
 type Logo = StateT Env (ExceptT String IO)
 
 instance MonadLogo Logo
 
-runLogo' :: Display -> Color -> Logo a -> IO (Either String (a, Env))
-runLogo' d c m = runExceptT $ runStateT m $ defaultEnv d c
-
-runLogo :: Display -> Color -> Logo a -> IO (Either String a)
-runLogo d c m = fmap fst <$> runLogo' d c m
+runLogo :: Display -> Color -> Logo a -> IO (Either String (a, Env))
+runLogo d c m = runExceptT $ runStateT m $ defaultEnv d c

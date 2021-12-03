@@ -1,13 +1,19 @@
 module Main where
 
 --getArgs
+import MonadLogo
 import Graphics.Gloss -- GUI
 import Lib
 import LogoPar
+import Control.Monad
+import Control.Monad.IO.Class
+
+import Control.Monad.Catch(MonadMask)
 import System.Environment
 import Text.Read -- readMaybe
-
-data State = S Display Color [Picture] Int Int Float
+import System.Console.Haskeline (InputT, defaultSettings, getInputLine, runInputT)
+import Common
+import Eval
 
 defaultHW :: Int
 defaultHW = 300
@@ -18,30 +24,38 @@ makeWindow h w = InWindow "LOGO" (h, w) (0, 0)
 defaultWindow :: Display
 defaultWindow = makeWindow defaultHW defaultHW
 
+run :: Display -> IO ()
+run d = runLogo d white (runInputT defaultSettings (repl)) >> return ()
+
 main :: IO ()
 main = do
   args <- getArgs
   case args of
-    [] -> loop defaultWindow
+    [] -> run defaultWindow
     (h : w : args) -> case readMaybe h >>= \hi -> readMaybe w >>= \wi -> return $ makeWindow hi wi of
-      Just d -> loop d
+      Just d -> run d
       Nothing -> do
         putStrLn "Uno o ambos argumentos son inválidos\nUtilizando las medidas default"
-        loop defaultWindow
+        run defaultWindow
     _ -> putStrLn "Numero incorrecto de argumentos"
 
 inp :: String
 inp = ">> "
 
-loop :: Display -> IO ()
-loop d = display d white Blank
+repl :: (MonadLogo m, MonadMask m) => InputT m ()
+repl = do
+  minput <- getInputLine inp
+  case minput of
+    Nothing -> return ()
+    Just "" -> repl
+    Just x -> do let cms = parser x
+                 liftIO $ putStrLn $ show cms
+                --  printLogo $ show cms
+                 repl
+      -- lift $ lift $ catchErrors $ evalinteractivo $ parser x
+              -- >> repl
 
--- loop :: MonadLogo m => Display -> InputT m ()
--- --loop screen = do display screen
--- -- loop d = display d white $ pictures [circle 80,circle 150]
--- loop d = do
---   input <- getInputLine inp
---   case input of
---     Nothing -> return ()
---     Just "" -> loop d
---     Just x -> do c <- liftIO $ parser x
+
+evalinteractivo :: MonadLogo m => [Comm] -> m ()
+evalinteractivo [] = printGraph >> return ()
+evalinteractivo (x:xs) = printGraph >> eval x >> evalinteractivo xs
