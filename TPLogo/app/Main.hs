@@ -34,7 +34,7 @@ inp :: String
 inp = ">> "
 
 loop :: Display -> IO ()
-loop d = display d white
+loop d = display d white Blank
 
 -- loop :: MonadLogo m => Display -> InputT m ()
 -- --loop screen = do display screen

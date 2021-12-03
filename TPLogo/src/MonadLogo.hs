@@ -1,4 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module MonadLogo where
 
@@ -132,3 +134,13 @@ getComm str = do comm <- getData comms
                  case mv of
                       Nothing -> failLogo ("Comando: " ++ str ++ ", no está definido, no se puede acceder.")
                       Just c -> return c
+
+type Logo = StateT Env (ExceptT String IO)
+
+instance MonadLogo Logo
+
+runLogo' :: Display -> Color -> Logo a -> IO (Either String (a, Env))
+runLogo' d c m = runExceptT $ runStateT m $ defaultEnv d c
+
+runLogo :: Display -> Color -> Logo a -> IO (Either String a)
+runLogo d c m = fmap fst <$> runLogo' d c m
