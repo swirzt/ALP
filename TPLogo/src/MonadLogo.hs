@@ -21,6 +21,9 @@ nada = return ()
 failLogo :: MonadLogo m => String -> m a
 failLogo str = throwError str
 
+getLogo :: MonadLogo m => m String
+getLogo = liftIO $ getLine
+
 printLogo :: MonadLogo m => String -> m ()
 printLogo = liftIO . putStrLn
 
@@ -34,6 +37,15 @@ printGraph = do
 
 getData :: MonadLogo m => (Env -> a) -> m a
 getData f = get >>= return . f
+
+getX :: MonadLogo m => m Float
+getX = getData posx
+
+getY :: MonadLogo m => m Float
+getY = getData posy
+
+getAng :: MonadLogo m => m Float
+getAng = getData dir
 
 addPicture :: MonadLogo m => Picture -> m ()
 addPicture p = do
@@ -96,7 +108,7 @@ penUp = modify (\s -> s {pen = True})
 penDn :: MonadLogo m => m ()
 penDn = modify (\s -> s {pen = False})
 
-newVar :: MonadLogo m => String -> Exp -> m ()
+newVar :: MonadLogo m => String -> Exp Vars -> m ()
 newVar str e = do varr <- getData vars
                   if M.member str varr
                       then failLogo ("Variable: " ++ str ++ ", ya declarada.")
@@ -108,7 +120,7 @@ delVar str = do varr <- getData vars
                     then failLogo ("Variable: " ++ str ++ ", no está definida, no se puede eliminar.")
                     else modify (\s -> s {vars = M.delete str varr})
 
-getVar :: MonadLogo m => String -> m Exp
+getVar :: MonadLogo m => String -> m (Exp Vars)
 getVar str = do varr <- getData vars
                 let mv = M.lookup str varr
                 case mv of
@@ -116,7 +128,7 @@ getVar str = do varr <- getData vars
                     Just e -> return e
 
                     
-newComm :: MonadLogo m => String -> Comm -> m ()
+newComm :: MonadLogo m => String -> Comm Vars -> m ()
 newComm str c = do comm <- getData comms
                    if M.member str comm
                       then failLogo ("comando: " ++ str ++ ", ya declarado.")

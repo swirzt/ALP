@@ -4,45 +4,49 @@ module Common where
 
 import Graphics.Gloss
 
-data List = Pos | L [Either List Exp] deriving Show
- 
-data Exp where
-  Num :: Float -> Exp
-  XCor :: Exp
-  YCor :: Exp
-  Heading :: Exp
-  Towards :: List -> Exp
-  Var :: String -> Exp
-  Sum :: Exp -> Exp -> Exp
-  Difference :: Exp -> Exp -> Exp
-  Multiply :: Exp -> Exp -> Exp
-  Divide :: Exp -> Exp -> Exp
-  First :: List -> Exp
-  Last :: List -> Exp
-  Item :: Exp -> List -> Exp
-  RandItem :: List -> Exp
-  Tail :: List -> Exp
-  RTail :: List -> Exp
-  Read :: Exp
+data List a = Pos | L [Either (List a) (Exp a)] deriving Show
+
+data Vars = S String | B Int
+
+data Exp a where
+  Str :: String -> Exp a
+  Num :: Float -> Exp a
+  XCor :: Exp a
+  YCor :: Exp a
+  Heading :: Exp a
+  Towards :: Exp a -> Exp a
+  Var :: a -> Exp a
+  Sum :: Exp a -> Exp a -> Exp a
+  Difference :: Exp a -> Exp a -> Exp a
+  Multiply :: Exp a -> Exp a -> Exp a
+  Divide :: Exp a -> Exp a -> Exp a
+  First :: Exp a -> Exp a
+  Last :: Exp a -> Exp a
+  Item :: Exp a -> Exp a -> Exp a
+  RandItem :: Exp a -> Exp a
+  Tail :: Exp a -> Exp a
+  RTail :: Exp a -> Exp a
+  Read :: Exp a
+  EList :: List a -> Exp a
   deriving Show
 
-data Boolen
-  = Gt Exp Exp
-  | Lt Exp Exp
-  | Eq Exp Exp
-  | GEq Exp Exp
-  | LEq Exp Exp
-  | Diff Exp Exp
-  | And Boolen Boolen
-  | Or Boolen Boolen
-  | Not Boolen
+data Boolen a
+  = Gt (Exp a) (Exp a)
+  | Lt (Exp a) (Exp a)
+  | Eq (Exp a) (Exp a)
+  | GEq (Exp a) (Exp a)
+  | LEq (Exp a) (Exp a)
+  | Diff (Exp a) (Exp a)
+  | And (Boolen a) (Boolen a)
+  | Or (Boolen a) (Boolen a)
+  | Not (Boolen a)
   deriving Show
 
-data Comm
-  = Ford Exp
-  | Back Exp
-  | TRight Exp
-  | TLeft Exp
+data Comm a
+  = Ford (Exp a)
+  | Back (Exp a)
+  | TRight (Exp a)
+  | TLeft (Exp a)
   | Clear
   | Clean
   | PUp
@@ -50,22 +54,23 @@ data Comm
   | HideT
   | ShowT
   | Home
-  | SetX Exp
-  | SetY Exp
-  | SetXY Exp Exp
-  | SetHead Exp
-  | Rep Exp Comm
-  | Print Exp
-  | Def String [String] Comm
-  | SetCo Exp
-  | DefV String Exp
-  | ForDelta String Exp Exp Exp Comm
-  | For String Exp Exp Comm
-  | If Boolen Comm
+  | SetX (Exp a)
+  | SetY (Exp a)
+  | SetXY (Exp a) (Exp a)
+  | SetHead (Exp a)
+  | Rep (Exp a) [Comm a]
+  | Print (Exp a)
+  | Def String [String] [Comm a]
+  | SetCo (Exp a)
+  | DefV String (Exp a)
+  | ForDelta String (Exp a) (Exp a) (Exp a) [Comm a]
+  | For String (Exp a) (Exp a) [Comm a]
+  | If (Boolen a) [Comm a]
   | Fill
-  | Filled Exp Comm
-  | Wait Exp
-  | While Comm Boolen
+  | Filled (Exp a) [Comm a]
+  | Wait (Exp a)
+  | While [Comm a] (Boolen a)
+  | CommVar String (List a)
   deriving Show
 
 rect :: Float -> Float -> Picture

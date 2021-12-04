@@ -13,8 +13,8 @@ data Env = Env
     pen :: Bool, -- Si es True, los movimientos de la tortuga no dibujan
     dir :: Float, -- Representa la dirección a donde mira la tortuga, representa los grados entre 0 y 2pi
     pics :: [Picture], -- Imagenes ya calculadas en el entorno
-    vars :: Map String Exp, -- Almacena las definiciones de Variables en el entorno
-    comms :: Map String Comm, -- Almacena las definiciones de Comandos en el entorno
+    vars :: Map String (Exp Vars), -- Almacena las definiciones de Variables en el entorno
+    comms :: Map String (Comm Vars), -- Almacena las definiciones de Comandos en el entorno
     toDis :: (Display, Color) -- 
   }
 

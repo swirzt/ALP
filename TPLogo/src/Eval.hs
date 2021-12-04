@@ -1,17 +1,19 @@
 module Eval where
 
 import Common
+import Lib
 import MonadLogo
 import Graphics.Gloss
 import System.Random
 import GHC.Float.RealFracMethods
 import GlobalEnv
+import Data.Char
 
 moveLine :: MonadLogo m => Exp -> (Float -> Float -> Float) -> m ()
 moveLine exp f = do
-  n <- runExpFloat exp
-  x <- getData posx
-  y <- getData posy
+  n <- runExpNum exp
+  x <- getX
+  y <- getY
   a <- getData dir
   let x' = f x ((cos a) * n)
       y' = f y ((sin a) * n)
@@ -23,23 +25,29 @@ moveLine exp f = do
 
 moveTo :: MonadLogo m => Float -> Float -> m ()
 moveTo x y = do
-  xc <- getData posx
-  yc <- getData posy
+  xc <- getX
+  yc <- getY
   let p = [(x,y), (xc,yc)]
       l = line p
   addPicture l
   setX x
   setY y
 
+setTo :: MonadLogo m => m Float -> m Float -> m ()
+setTo f g = do
+            x <- f
+            y <- g
+            moveTo x y
+
 modAng :: MonadLogo m => Exp -> (Float -> Float -> Float) -> m ()
 modAng exp f = do
-  n <- runExpFloat exp
+  n <- runExpNum exp
   let radN = grad2radian n
   changeAng f radN
 
 repeatComm :: MonadLogo m => Exp -> Comm -> m ()
 repeatComm exp com = do
-  n <- runExpFloat exp
+  n <- runExpNum exp
   let ni = floorFloatInt n
   if ni >= 0
      then repeatComm' ni com
@@ -61,22 +69,13 @@ eval PDown = penDn
 eval HideT = hideT
 eval ShowT = showT
 eval Home = moveTo 0 0
-eval (SetX exp) = do
-  x <- runExpFloat exp
-  y <- getData posy
-  moveTo x y
-eval (SetY exp) = do
-  y <- runExpFloat exp
-  x <- getData posx
-  moveTo x y
-eval (SetXY exp1 exp2) = do
-  x <- runExpFloat exp1
-  y <- runExpFloat exp2
-  moveTo x y
+eval (SetX exp) = setTo (runExpNum exp) getY
+eval (SetY exp) = setTo getX (runExpNum exp)
+eval (SetXY exp1 exp2) = setTo (runExpNum exp1) (runExpNum exp2)
 eval (SetHead exp) = modAng exp (\_ x -> x)
 eval (Rep exp com) = repeatComm exp com
 eval (Print exp) = do
-  n <- runExpFloat exp
+  n <- runExpNum exp
   printLogo $ Prelude.show n
   -- | Def String [String] Comm
   -- | SetCo Exp
@@ -91,8 +90,8 @@ eval (DefV str exp) = newVar str exp
 
 runEq :: MonadLogo m => Exp -> Exp -> (Float -> Float -> Bool) -> m Bool
 runEq x y f = do
-  x' <- runExpFloat x 
-  y' <- runExpFloat y
+  x' <- runExpNum x 
+  y' <- runExpNum y
   return (f x' y')
 
 runBool :: MonadLogo m => Boolen -> Boolen -> (Bool -> Bool -> Bool) -> m Bool
@@ -127,19 +126,28 @@ getRandom n = do
   let (x, _) = randomR (0, n -1) g
   return x
 
-runExpFloat :: MonadLogo m => Exp -> m Float
-runExpFloat x = do
+runExpNum :: MonadLogo m => Exp -> m Float
+runExpNum x = do
   y <- runExp x
   case y of
     Right k -> return k
     Left _ -> failLogo "Se esperaba un número pero se obtuvo una lista"
 
-runExp :: MonadLogo m => Exp -> m (Either List Float)
-runExp (Num n) = return $ Right n
-runExp XCor = undefined -- Monadico
-runExp YCor = undefined -- Monadico
-runExp Heading = undefined -- Monadico
-runExp (Towards _) = undefined -- Monadico
+runExp :: MonadLogo m => Exp -> m (Either3 List String Float)
+runExp (Num n) = return $ Der n
+runExp XCor = getX >>= return . Der
+runExp YCor = getY >>= return . Der
+runExp Heading = getData dir >>= return . Der . radian2grad
+runExp (Towards l) = do x <- getX
+                        y <- getY
+                        e <- runExp l
+                        case e of
+  Izq ll -> let ln = listLength ll
+            in if ln /= 2
+               then failLogo $ "El comando towards espera una lista de tamaño 2, pero encontró una de tamaño: " ++ show ln ++ "."
+               else 
+  Medio _ -> failLogo "El comando towards esperaba una lista, pero se le dió un string."
+  Der _ -> failLogo "El comando towards esperaba una lista, pero se le dió un número."
 runExp (Var _) = undefined -- Monadico
 runExp (Sum x y) = binary x y (+)
 runExp (Difference x y) = binary x y (-)
@@ -148,7 +156,7 @@ runExp (Divide x y) = binary x y (/)
 runExp (First xs) = listFuncList2 xs head
 runExp (Last xs) = listFuncList2 xs fin
 runExp (Item x xs) = do
-  x' <- runExpFloat x
+  x' <- runExpNum x
   let xx = floorFloatInt x'
   listFuncElem xs xx
 runExp (RandItem xs) = do
@@ -157,9 +165,14 @@ runExp (RandItem xs) = do
   listFuncElem xs x
 runExp (Tail xs) = listFuncList xs tail
 runExp (RTail xs) = listFuncList xs rTail
--- runExp Read = do
---   input <- getInput
---   return $ read input
+runExp Read = do
+  input <- getLogo
+  let input' = if isAlpha $ head input -- Si es un string le agrego " para que se pueda parsear
+               then '"' : input
+               else input
+      e = parserExp input
+  runExp e
+runExp (EList l) = return $ Izq l
 
 runFull :: MonadLogo m => Either List Exp -> m (Either List Float)
 runFull (Right e) = runExp e
@@ -194,8 +207,8 @@ listFuncList2 l f = do
 
 runList :: MonadLogo m => List -> m [Either List Exp]
 runList Pos = do
-  x <- getData posx
-  y <- getData posy
+  x <- getX
+  y <- getY
   return $ map (Right . Num) [x, y]
 runList (L xs) = return xs
 
