@@ -80,8 +80,7 @@ import Data.Char
       '+'               { TokenSSum }
       '-'               { TokenSDiff }
 
-%left '||'
-%left '&&'
+%left '&&' '||'
 %nonassoc not
 %nonassoc tuple
 %nonassoc sum difference
@@ -119,14 +118,14 @@ Comm : fordward Exp                                { Ford $2 }
      | to varC Args CommSeq end                    { Def $2 $3 $4 }
      | setcolor Exp                                { SetCo $2 }
      | make str Exp                                { DefV $2 $3 }
-     | for '[' str Exp Exp ']' '[' CommSeq ']'     { For $3 $4 $5 $8 }
-     | for '[' str Exp Exp Exp ']' '[' CommSeq ']' { ForDelta $3 $4 $5 $6 $9 }
-     | if Bool '[' CommSeq ']'                     { If $2 $4 }
+     | for List '[' CommSeq ']'                    { For $3 $4 $5 $8 }
+     | if Bool '[' CommSeq ']'                     { IfC $2 $4 }
      | fill                                        { Fill }
      | filled Exp '[' CommSeq ']'                  { Filled $2 $4 }
      | wait Exp                                    { Wait $2 }
      | 'do.while' '[' CommSeq ']' Bool             { While $3 $5 }
      | varC List                                   { CommVar $1 $2 }
+     | '(' Comm ')'                                { $2 }
 
 Exp :: { Exp String }
 Exp : num                  { Num $1 }
@@ -150,6 +149,7 @@ Exp : num                  { Num $1 }
     | Exp '*' Exp          { Multiply $1 $3 }
     | str                  { Str $1 }
     | List                 { EList $1 }
+    | if Bool List         { IfE $2 $3 }
     | '(' Exp ')'          { $2 }
 
 
@@ -160,6 +160,7 @@ EL : Exp                  { Right $1 }
 List :: { List String }
 List : pos                { Pos }
      | tuple EL EL        { L [$2, $3] }
+     | '[' Seq ']'        { L $2 }
      | '(' list Seq ')'   { L $3 }
 
 Seq :: { [Either (List String) (Exp String)] }

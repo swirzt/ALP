@@ -4,31 +4,32 @@ module Common where
 
 import Graphics.Gloss
 
-data List a = Pos | L [Either (List a) (Exp a)] deriving Show
+data List a = Pos | L [Either (List a) (Exp a)] deriving (Show)
 
 data Vars = S String | B Int
 
-data Exp a where
-  Str :: String -> Exp a
-  Num :: Float -> Exp a
-  XCor :: Exp a
-  YCor :: Exp a
-  Heading :: Exp a
-  Towards :: Exp a -> Exp a
-  Var :: a -> Exp a
-  Sum :: Exp a -> Exp a -> Exp a
-  Difference :: Exp a -> Exp a -> Exp a
-  Multiply :: Exp a -> Exp a -> Exp a
-  Divide :: Exp a -> Exp a -> Exp a
-  First :: Exp a -> Exp a
-  Last :: Exp a -> Exp a
-  Item :: Exp a -> Exp a -> Exp a
-  RandItem :: Exp a -> Exp a
-  Tail :: Exp a -> Exp a
-  RTail :: Exp a -> Exp a
-  Read :: Exp a
-  EList :: List a -> Exp a
-  deriving Show
+data Exp a
+  = Str String
+  | Num Float
+  | XCor
+  | YCor
+  | Heading
+  | Towards (Exp a)
+  | Var a
+  | Sum (Exp a) (Exp a)
+  | Difference (Exp a) (Exp a)
+  | Multiply (Exp a) (Exp a)
+  | Divide (Exp a) (Exp a)
+  | First (Exp a)
+  | Last (Exp a)
+  | Item (Exp a) (Exp a)
+  | RandItem (Exp a)
+  | Tail (Exp a)
+  | RTail (Exp a)
+  | Read
+  | EList (List a)
+  | IfE (Boolen a) (List a)
+  deriving (Show)
 
 data Boolen a
   = Gt (Exp a) (Exp a)
@@ -40,7 +41,7 @@ data Boolen a
   | And (Boolen a) (Boolen a)
   | Or (Boolen a) (Boolen a)
   | Not (Boolen a)
-  deriving Show
+  deriving (Show)
 
 data Comm a
   = Ford (Exp a)
@@ -65,13 +66,13 @@ data Comm a
   | DefV String (Exp a)
   | ForDelta String (Exp a) (Exp a) (Exp a) [Comm a]
   | For String (Exp a) (Exp a) [Comm a]
-  | If (Boolen a) [Comm a]
+  | IfC (Boolen a) [Comm a]
   | Fill
   | Filled (Exp a) [Comm a]
   | Wait (Exp a)
   | While [Comm a] (Boolen a)
   | CommVar String (List a)
-  deriving Show
+  deriving (Show)
 
 rect :: Float -> Float -> Picture
 rect x y = polygon $ rectanglePath x y

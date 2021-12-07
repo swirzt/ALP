@@ -1,19 +1,17 @@
 module Main where
 
---getArgs
-import MonadLogo
-import Graphics.Gloss -- GUI
+import Common
+import Control.Monad
+import Control.Monad.Catch (MonadMask)
+import Control.Monad.IO.Class
+import Eval
+import Graphics.Gloss
 import Lib
 import LogoPar
-import Control.Monad
-import Control.Monad.IO.Class
-
-import Control.Monad.Catch(MonadMask)
-import System.Environment
-import Text.Read -- readMaybe
+import MonadLogo
 import System.Console.Haskeline (InputT, defaultSettings, getInputLine, runInputT)
-import Common
-import Eval
+import System.Environment
+import Text.Read
 
 defaultHW :: Int
 defaultHW = 300
@@ -48,14 +46,15 @@ repl = do
   case minput of
     Nothing -> return ()
     Just "" -> repl
-    Just x -> do let cms = parser x
-                 liftIO $ putStrLn $ show cms
-                --  printLogo $ show cms
-                 repl
-      -- lift $ lift $ catchErrors $ evalinteractivo $ parser x
-              -- >> repl
+    Just x -> do
+      let cms = parser x
+      liftIO $ putStrLn $ show cms
+      --  printLogo $ show cms
+      repl
 
+-- lift $ lift $ catchErrors $ evalinteractivo $ parser x
+-- >> repl
 
 evalinteractivo :: MonadLogo m => [Comm] -> m ()
 evalinteractivo [] = printGraph >> return ()
-evalinteractivo (x:xs) = printGraph >> eval x >> evalinteractivo xs
+evalinteractivo (x : xs) = printGraph >> eval x >> evalinteractivo xs

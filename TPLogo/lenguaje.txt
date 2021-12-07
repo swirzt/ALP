@@ -16,11 +16,10 @@ Comm ::= Comm Comm
        | setheading Exp | seth Exp
        | repeat Exp [Comm]
        | print Exp
-       | to String Args Comm end
+       | to String Args [Comm] end
        | setcolor Exp
        | make String Exp
-       | for [String Exp Exp] [Comm]
-       | for [String Exp Exp Exp] [Comm]
+       | for Exp [Comm]
        | if Bool [Comm]
        | fill
        | filled Exp [Comm]
